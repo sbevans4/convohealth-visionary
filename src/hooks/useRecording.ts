@@ -1,9 +1,10 @@
 
 import { useState, useRef, useEffect } from "react";
-import { TranscriptSegment } from "@/types/medical";
+import { TranscriptSegment, SoapNote } from "@/types/medical";
 import { toast } from "sonner";
 import { isPlatform } from "@/utils/platformUtils";
 import { audioToBase64 } from "@/utils/formatters";
+import { generateSoapNote } from "@/utils/soapNoteGenerator";
 
 // Define Google API key - in a production app, this should be stored securely
 // This is a placeholder - you would need to provide your own API key
@@ -11,13 +12,18 @@ const GOOGLE_SPEECH_API_KEY = "YOUR_GOOGLE_API_KEY";
 
 interface UseRecordingOptions {
   onTranscriptionReady?: (transcript: TranscriptSegment[]) => void;
+  onSoapNoteReady?: (soapNote: SoapNote) => void;
 }
+
+export type ProcessingPhase = 'idle' | 'transcribing' | 'analyzing' | 'generating' | 'complete';
 
 export function useRecording(options?: UseRecordingOptions) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [transcript, setTranscript] = useState<TranscriptSegment[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingPhase, setProcessingPhase] = useState<ProcessingPhase>('idle');
+  const [soapNote, setSoapNote] = useState<SoapNote | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
@@ -25,6 +31,8 @@ export function useRecording(options?: UseRecordingOptions) {
   const resetRecording = () => {
     setRecordingTime(0);
     setTranscript([]);
+    setSoapNote(null);
+    setProcessingPhase('idle');
     audioChunksRef.current = [];
     if (timerRef.current) {
       window.clearInterval(timerRef.current);
@@ -63,19 +71,51 @@ export function useRecording(options?: UseRecordingOptions) {
       mediaRecorder.onstop = async () => {
         try {
           setIsProcessing(true);
+          setProcessingPhase('transcribing');
+          
           // Combine audio chunks into a single blob
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
           
           // Send to Google Speech API for transcription
+          let transcriptResult: TranscriptSegment[] = [];
+          
           if (GOOGLE_SPEECH_API_KEY !== "YOUR_GOOGLE_API_KEY") {
-            await processWithGoogleSpeechToText(audioBlob);
+            transcriptResult = await processWithGoogleSpeechToText(audioBlob);
           } else {
             // Fall back to mock data if no API key is provided
-            await simulateTranscriptionProcessing(audioBlob);
+            transcriptResult = await simulateTranscriptionProcessing(audioBlob);
           }
           
           // Stop all tracks
           stream.getTracks().forEach(track => track.stop());
+          
+          // Save transcript
+          setTranscript(transcriptResult);
+          
+          // Notify through callback if provided
+          if (options?.onTranscriptionReady) {
+            options.onTranscriptionReady(transcriptResult);
+          }
+          
+          // Continue to SOAP note generation
+          setProcessingPhase('analyzing');
+          
+          // Simulate analysis phase
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          setProcessingPhase('generating');
+          
+          // Generate SOAP note automatically
+          const generatedSoapNote = await generateSoapNote(transcriptResult);
+          setSoapNote(generatedSoapNote);
+          
+          // Notify through callback if provided
+          if (options?.onSoapNoteReady) {
+            options.onSoapNoteReady(generatedSoapNote);
+          }
+          
+          setProcessingPhase('complete');
+          toast.success("SOAP note generated successfully");
           
         } catch (error) {
           console.error("Error processing recording:", error);
@@ -115,7 +155,7 @@ export function useRecording(options?: UseRecordingOptions) {
   };
 
   // Process audio with Google Speech-to-Text API
-  const processWithGoogleSpeechToText = async (audioBlob: Blob) => {
+  const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<TranscriptSegment[]> => {
     try {
       // Convert audio to base64
       const audioBase64 = await audioToBase64(audioBlob);
@@ -183,26 +223,19 @@ export function useRecording(options?: UseRecordingOptions) {
         });
       }
       
-      setTranscript(transcriptSegments);
-      
-      // Notify through callback if provided
-      if (options?.onTranscriptionReady) {
-        options.onTranscriptionReady(transcriptSegments);
-      }
-      
-      toast.success("Transcription completed");
+      return transcriptSegments;
       
     } catch (error) {
       console.error("Error with Google Speech-to-Text:", error);
       toast.error("Speech-to-text processing failed");
       
       // Fall back to mock data
-      await simulateTranscriptionProcessing(audioBlob);
+      return simulateTranscriptionProcessing(audioBlob);
     }
   };
 
   // This function simulates the transcription process for development
-  const simulateTranscriptionProcessing = async (audioBlob: Blob) => {
+  const simulateTranscriptionProcessing = async (audioBlob: Blob): Promise<TranscriptSegment[]> => {
     // In a real app, you would send the audio to a transcription service
     // For now, we'll simulate with mock data
     console.log("Processing audio blob:", audioBlob);
@@ -246,14 +279,7 @@ export function useRecording(options?: UseRecordingOptions) {
       }
     ];
     
-    setTranscript(mockTranscript);
-    
-    // Notify through callback if provided
-    if (options?.onTranscriptionReady) {
-      options.onTranscriptionReady(mockTranscript);
-    }
-    
-    toast.success("Transcription completed");
+    return mockTranscript;
   };
 
   return {
@@ -261,6 +287,8 @@ export function useRecording(options?: UseRecordingOptions) {
     recordingTime,
     transcript,
     isProcessing,
+    processingPhase,
+    soapNote,
     startRecording,
     stopRecording,
     resetRecording
