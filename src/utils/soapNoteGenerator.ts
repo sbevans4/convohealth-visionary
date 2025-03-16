@@ -1,3 +1,4 @@
+
 import { TranscriptSegment, SoapNote } from "@/types/medical";
 import { generateWithDeepseekAPI } from "@/hooks/recording/soapNoteProcessing";
 
@@ -36,7 +37,8 @@ export async function generateSoapNote(transcript: TranscriptSegment[]): Promise
 export function extractMedicalInfo(transcript: TranscriptSegment[]) {
   const keywords = [
     "pain", "headache", "dizziness", "nausea", "fever", 
-    "cough", "breathing", "medication", "allergies"
+    "cough", "breathing", "medication", "allergies",
+    "hypertension", "diabetes", "asthma", "heart", "medication"
   ];
   
   const findings: Record<string, string[]> = {};

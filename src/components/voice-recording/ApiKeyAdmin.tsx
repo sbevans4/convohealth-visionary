@@ -4,11 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Key, Save, Loader2 } from 'lucide-react';
 
-export const ApiKeyAdmin = () => {
+interface ApiKeyFormProps {
+  keyName: string;
+  displayName: string;
+  endpoint: string;
+  description: string;
+}
+
+const ApiKeyForm = ({ keyName, displayName, endpoint, description }: ApiKeyFormProps) => {
   const [apiKey, setApiKey] = useState('');
   const [existingKey, setExistingKey] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,29 +31,29 @@ export const ApiKeyAdmin = () => {
         const { data, error } = await supabase
           .from('apis')
           .select('api_key')
-          .eq('name', 'google_speech_api')
+          .eq('name', keyName)
           .eq('status', 'active')
-          .single();
+          .maybeSingle();
         
-        if (error) {
-          console.log('No existing key found or error:', error);
+        if (error || !data) {
+          console.log(`No existing ${keyName} found or error:`, error);
           setExistingKey(null);
         } else {
-          console.log('Found existing key');
+          console.log(`Found existing ${keyName}`);
           setExistingKey(data.api_key);
           // Mask key except for first 4 characters for display
           const maskedKey = data.api_key.substring(0, 4) + '************************';
           setApiKey(maskedKey);
         }
       } catch (err) {
-        console.error('Error fetching API key:', err);
+        console.error(`Error fetching ${keyName}:`, err);
       } finally {
         setIsLoading(false);
       }
     };
     
     fetchApiKey();
-  }, []);
+  }, [keyName]);
 
   const handleSaveApiKey = async () => {
     if (!apiKey || apiKey.includes('*')) {
@@ -60,22 +68,22 @@ export const ApiKeyAdmin = () => {
       const { data, error } = await supabase
         .from('apis')
         .select('id')
-        .eq('name', 'google_speech_api')
-        .single();
+        .eq('name', keyName)
+        .maybeSingle();
       
-      if (error) {
+      if (error || !data) {
         // Key doesn't exist, insert new one
         const { error: insertError } = await supabase
           .from('apis')
           .insert({
-            name: 'google_speech_api', 
+            name: keyName, 
             api_key: apiKey, 
             status: 'active',
-            endpoint: 'https://speech.googleapis.com/v1/speech:recognize' // Add the required endpoint field
+            endpoint: endpoint
           });
         
         if (insertError) throw insertError;
-        toast.success('API key saved successfully');
+        toast.success(`${displayName} saved successfully`);
       } else {
         // Key exists, update it
         const { error: updateError } = await supabase
@@ -84,7 +92,7 @@ export const ApiKeyAdmin = () => {
           .eq('id', data.id);
         
         if (updateError) throw updateError;
-        toast.success('API key updated successfully');
+        toast.success(`${displayName} updated successfully`);
       }
       
       // Mask displayed key
@@ -93,32 +101,32 @@ export const ApiKeyAdmin = () => {
       setExistingKey(apiKey);
       
     } catch (err) {
-      console.error('Error saving API key:', err);
-      toast.error('Error saving API key');
+      console.error(`Error saving ${keyName}:`, err);
+      toast.error(`Error saving ${displayName}`);
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Key className="h-5 w-5" />
-          Google Speech API Key
+          {displayName}
         </CardTitle>
         <CardDescription>
-          Configure your Google Speech-to-Text API key for voice transcription
+          {description}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="api-key">API Key</Label>
+            <Label htmlFor={`${keyName}-key`}>API Key</Label>
             <Input
-              id="api-key"
+              id={`${keyName}-key`}
               type="password"
-              placeholder="Enter your Google Speech API key"
+              placeholder={`Enter your ${displayName}`}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               disabled={isLoading}
@@ -158,5 +166,36 @@ export const ApiKeyAdmin = () => {
         </Button>
       </CardFooter>
     </Card>
+  );
+};
+
+export const ApiKeyAdmin = () => {
+  const [activeTab, setActiveTab] = useState("google");
+  
+  return (
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <TabsList className="grid w-full grid-cols-2 mb-6">
+        <TabsTrigger value="google">Google Speech</TabsTrigger>
+        <TabsTrigger value="deepseek">Deepseek AI</TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="google" className="mt-0">
+        <ApiKeyForm 
+          keyName="google_speech_api"
+          displayName="Google Speech API Key"
+          endpoint="https://speech.googleapis.com/v1/speech:recognize"
+          description="Configure your Google Speech-to-Text API key for voice transcription"
+        />
+      </TabsContent>
+      
+      <TabsContent value="deepseek" className="mt-0">
+        <ApiKeyForm 
+          keyName="deepseek_api"
+          displayName="Deepseek API Key"
+          endpoint="https://api.deepseek.com/v1/chat/completions"
+          description="Configure your Deepseek API key for SOAP note generation"
+        />
+      </TabsContent>
+    </Tabs>
   );
 };

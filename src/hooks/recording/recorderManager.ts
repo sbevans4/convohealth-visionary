@@ -1,3 +1,4 @@
+
 import { TranscriptSegment, SoapNote } from "@/types/medical";
 import { processWithGoogleSpeechToText } from "./audioProcessing";
 import { generateSoapNote } from "@/utils/soapNoteGenerator";
@@ -81,24 +82,36 @@ export const processRecording = async (
   }
 };
 
-export async function setupDeepseekApiKey() {
+// Function to check and setup API keys on initialization
+export async function setupApiKeys() {
   try {
-    const deepseekApiKey = "sk-203ab682367d4f75a2b568443a33c87b";
+    // Check if we need to setup the Google Speech API key
+    const { data: googleApiData, error: googleApiError } = await supabase
+      .from('apis')
+      .select('id')
+      .eq('name', 'google_speech_api')
+      .single();
     
-    // Check if the key already exists
-    const { data, error } = await supabase
+    if (googleApiError) {
+      console.log("Need to set up Google Speech API key");
+    } else {
+      console.log("Google Speech API key already configured");
+    }
+    
+    // Check and setup the Deepseek API key
+    const { data: deepseekData, error: deepseekError } = await supabase
       .from('apis')
       .select('id')
       .eq('name', 'deepseek_api')
       .single();
     
-    if (error) {
-      // Key doesn't exist, insert it
+    if (deepseekError) {
+      console.log("Setting up initial Deepseek API key");
       const { error: insertError } = await supabase
         .from('apis')
         .insert({
           name: 'deepseek_api',
-          api_key: deepseekApiKey,
+          api_key: "sk-203ab682367d4f75a2b568443a33c87b",
           status: 'active',
           endpoint: 'https://api.deepseek.com/v1/chat/completions'
         });
@@ -109,26 +122,12 @@ export async function setupDeepseekApiKey() {
         console.log("Deepseek API key added to database");
       }
     } else {
-      // Key exists, update it
-      const { error: updateError } = await supabase
-        .from('apis')
-        .update({ 
-          api_key: deepseekApiKey,
-          status: 'active',
-          endpoint: 'https://api.deepseek.com/v1/chat/completions'
-        })
-        .eq('id', data.id);
-      
-      if (updateError) {
-        console.error("Error updating Deepseek API key:", updateError);
-      } else {
-        console.log("Deepseek API key updated in database");
-      }
+      console.log("Deepseek API key already configured");
     }
   } catch (err) {
-    console.error("Error setting up Deepseek API key:", err);
+    console.error("Error setting up API keys:", err);
   }
 }
 
-// Initialize the API key on module load
-setupDeepseekApiKey().catch(console.error);
+// Initialize API keys on module load
+setupApiKeys().catch(console.error);
