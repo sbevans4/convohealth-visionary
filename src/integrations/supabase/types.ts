@@ -9,6 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      apis: {
+        Row: {
+          api_key: string | null
+          created_at: string | null
+          description: string | null
+          endpoint: string
+          id: string
+          name: string
+          owner_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          created_at?: string | null
+          description?: string | null
+          endpoint: string
+          id?: string
+          name: string
+          owner_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          created_at?: string | null
+          description?: string | null
+          endpoint?: string
+          id?: string
+          name?: string
+          owner_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "apis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string | null
