@@ -1,13 +1,20 @@
 
 import { TranscriptSegment, SoapNote } from "@/types/medical";
 import { generateWithDeepseekAPI } from "@/hooks/recording/soapNoteProcessing";
-import { isPlatform } from "@/utils/platformUtils";
+import { isPlatform, isOnline } from "@/utils/platformUtils";
 
 export async function generateSoapNote(transcript: TranscriptSegment[]): Promise<SoapNote> {
   console.log("Generating SOAP note from transcript:", transcript);
   
   try {
-    // First check if we're online or in a native environment
+    // First check if we're online
+    const online = await isOnline();
+    if (!online) {
+      console.log("Device is offline, using fallback SOAP note generation");
+      return generateFallbackSoapNote(transcript);
+    }
+    
+    // Then check platform-specific handling
     if (isPlatform('android') || isPlatform('ios')) {
       try {
         // Use the Deepseek API to generate a SOAP note

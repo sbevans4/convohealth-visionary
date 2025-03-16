@@ -9,4 +9,10 @@
     <string name="private_policy">https://convohealth.app/privacy</string>
     <string name="capacitor_background_color">#FFFFFF</string>
     <string name="capacitor_splash_screen_background_color">#FFFFFF</string>
+    <string name="share_app_text">Check out ConvoHealth Visionary - A revolutionary medical scribe app!</string>
+    <string name="app_description">ConvoHealth Visionary helps healthcare professionals create SOAP notes from voice recordings.</string>
+    <string name="mic_permission_reason">Microphone access is needed to record conversations for transcription.</string>
+    <string name="internet_permission_reason">Internet access is required to process recordings and generate notes.</string>
+    <string name="app_support_email">support@convohealth.app</string>
+    <string name="app_version">1.0.0</string>
 </resources>

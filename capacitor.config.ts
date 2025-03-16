@@ -9,6 +9,21 @@ const config: CapacitorConfig = {
     url: 'https://5c493ede-bbc3-43de-b1d2-3a7209345528.lovableproject.com?forceHideBadge=true',
     cleartext: true
   },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      backgroundColor: "#FFFFFF",
+      androidSplashResourceName: "splash",
+      androidScaleType: "CENTER_CROP",
+      showSpinner: true,
+      androidSpinnerStyle: "large",
+      spinnerColor: "#999999",
+    },
+    CapacitorHttp: {
+      enabled: true,
+    },
+  },
   android: {
     buildOptions: {
       keystorePath: 'convohealth.keystore',
@@ -18,7 +33,17 @@ const config: CapacitorConfig = {
     },
     allowMixedContent: true,
     captureInput: true,
-    webViewUserAgent: 'ConvoHealth Visionary Android App'
+    webViewUserAgent: 'ConvoHealth Visionary Android App',
+    backgroundColor: "#FFFFFF",
+    minSdkVersion: 22,
+    targetSdkVersion: 33,
+    overrideUserAgent: false,
+    appendUserAgent: 'ConvoHealth/1.0.0',
+    permissions: [
+      "android.permission.RECORD_AUDIO",
+      "android.permission.INTERNET",
+      "android.permission.ACCESS_NETWORK_STATE"
+    ]
   }
 };
 

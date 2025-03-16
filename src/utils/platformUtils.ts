@@ -84,3 +84,69 @@ export const isOnline = async (): Promise<boolean> => {
     return navigator.onLine; // Fallback to browser API
   }
 };
+
+/**
+ * Rate the app on the play store
+ */
+export const rateApp = () => {
+  if (!isPlatform('android')) return;
+  
+  try {
+    const { App } = (window as any).Capacitor.Plugins;
+    const appPackageName = "app.lovable.5c493edebbc343deb1d23a7209345528"; 
+    
+    // Open Google Play Store page for the app
+    App.openUrl({
+      url: `market://details?id=${appPackageName}`
+    }).catch(() => {
+      // If market URL fails, open web URL
+      App.openUrl({
+        url: `https://play.google.com/store/apps/details?id=${appPackageName}`
+      });
+    });
+  } catch (error) {
+    console.error('Error opening app store for rating:', error);
+  }
+};
+
+/**
+ * Share app with others
+ */
+export const shareApp = async (message: string = "Check out ConvoHealth Visionary!") => {
+  if (!isNative()) return;
+  
+  try {
+    const { Share } = (window as any).Capacitor.Plugins;
+    await Share.share({
+      title: "ConvoHealth Visionary",
+      text: message,
+      url: "https://play.google.com/store/apps/details?id=app.lovable.5c493edebbc343deb1d23a7209345528",
+      dialogTitle: "Share ConvoHealth Visionary"
+    });
+  } catch (error) {
+    console.error('Error sharing app:', error);
+  }
+};
+
+/**
+ * Check if this is a production build
+ */
+export const isProduction = (): boolean => {
+  return import.meta.env.MODE === 'production';
+};
+
+/**
+ * Get app version from native platform
+ */
+export const getAppVersion = async (): Promise<string> => {
+  if (!isNative()) return "web";
+  
+  try {
+    const { App } = (window as any).Capacitor.Plugins;
+    const info = await App.getInfo();
+    return info.version;
+  } catch (error) {
+    console.error('Error getting app version:', error);
+    return "unknown";
+  }
+};

@@ -25,11 +25,11 @@ export default defineConfig(({ mode }) => ({
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true, // Remove console logs in production
+        drop_console: mode === 'production', // Remove console logs only in production
         drop_debugger: true,
       },
     },
-    // Create smaller chunks for better loading
+    // Create smaller chunks for better loading on mobile
     rollupOptions: {
       output: {
         manualChunks: {
@@ -40,8 +40,22 @@ export default defineConfig(({ mode }) => ({
             '@radix-ui/react-label',
             '@radix-ui/react-toast',
           ],
+          recording: [
+            '@hooks/recording/audioProcessing',
+            '@hooks/recording/recorderManager',
+            '@hooks/recording/soapNoteProcessing',
+            '@utils/soapNoteGenerator',
+          ],
         },
       },
     },
+    // Improve code splitting for Android
+    chunkSizeWarningLimit: 1000, // Increase warning limit for mobile bundles
+    sourcemap: mode !== 'production', // Only generate sourcemaps in development
   },
+  // Optimize for mobile performance
+  esbuild: {
+    legalComments: 'none', // Remove license comments
+    target: ['es2020', 'chrome87'], // Target modern mobile browsers
+  }
 }));
