@@ -50,9 +50,9 @@ serve(async (req) => {
 
     console.log(`Creating checkout session for plan: ${planId}, interval: ${interval}, price ID: ${stripePriceId}`);
     
-    // Create Stripe checkout session
+    // Create Stripe checkout session with both card and PayPal payment methods
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
+      payment_method_types: ["card", "paypal"],
       line_items: [
         {
           price: stripePriceId,
