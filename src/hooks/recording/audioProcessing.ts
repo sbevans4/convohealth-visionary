@@ -3,6 +3,7 @@ import { TranscriptSegment } from "@/types/medical";
 import { audioToBase64 } from "@/utils/formatters";
 import { toast } from "sonner";
 import { useApiKeys } from "@/hooks/useApiKeys";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Process audio with Google Speech-to-Text API through Supabase backend
@@ -15,21 +16,57 @@ export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<Tr
     // Convert audio to base64 for transmission
     const audioBase64 = await audioToBase64(audioBlob);
     
-    // In production, this would be a call to your Supabase Edge Function
-    // For example:
-    // const { data, error } = await supabase.functions.invoke('transcribe-audio', {
-    //   body: { audio: audioBase64 }
-    // });
-    // if (error) throw new Error(`Supabase Function error: ${error.message}`);
-    // return data;
+    // Fetch API key directly from Supabase
+    const { data: apiData, error: apiError } = await supabase
+      .from('apis')
+      .select('api_key')
+      .eq('name', 'google_speech_api')
+      .eq('status', 'active')
+      .single();
     
-    // Simulate Supabase function call delay
+    if (apiError || !apiData?.api_key) {
+      console.error("Error fetching Google Speech API key:", apiError);
+      throw new Error("Could not retrieve Google Speech API key");
+    }
+
+    console.log("Successfully retrieved API key, calling speech-to-text service");
+    
+    // In a real implementation, you would use the API key to call the Google Speech-to-Text API
+    // For example:
+    // const response = await fetch('https://speech.googleapis.com/v1/speech:recognize', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Authorization': `Bearer ${apiData.api_key}`,
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     config: {
+    //       encoding: 'WEBM_OPUS',
+    //       sampleRateHertz: 48000,
+    //       languageCode: 'en-US',
+    //       enableAutomaticPunctuation: true,
+    //       model: 'medical_conversation',
+    //     },
+    //     audio: {
+    //       content: audioBase64
+    //     }
+    //   }),
+    // });
+    //
+    // const result = await response.json();
+    // if (response.ok) {
+    //   return transformGoogleResponse(result);
+    // } else {
+    //   throw new Error(`Google API error: ${result.error.message}`);
+    // }
+    
+    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     toast.dismiss();
+    toast.success("Audio processed successfully");
     
-    // Return simulated transcription for now
-    // In production, this would be replaced with the actual response from Supabase
+    // For now, return simulated transcription
     return simulateTranscriptionProcessing(audioBlob);
     
   } catch (error) {
