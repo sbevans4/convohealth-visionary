@@ -14,7 +14,7 @@ const CtaSection = () => {
                   Ready to transform your medical documentation?
                 </h2>
                 <p className="text-medical-100 mb-6">
-                  Join thousands of healthcare providers who save hours every day with ConvoNotes Medical.
+                  Join thousands of healthcare providers who save hours every day with AI Doctor Notes.
                 </p>
                 <Button className="bg-white text-medical-600 hover:bg-medical-50" size="lg" asChild>
                   <Link to="/auth">
@@ -26,7 +26,7 @@ const CtaSection = () => {
               <div className="rounded-lg bg-white/10 p-6">
                 <div className="text-lg font-medium mb-4">What our users say:</div>
                 <blockquote className="italic text-medical-50">
-                  "ConvoNotes has completely transformed our practice. I save at least 2 hours of documentation time every day and can focus more on patient care."
+                  "AI Doctor Notes has completely transformed our practice. I save at least 2 hours of documentation time every day and can focus more on patient care."
                 </blockquote>
                 <div className="mt-4 flex items-center">
                   <div className="h-10 w-10 rounded-full bg-white/20"></div>

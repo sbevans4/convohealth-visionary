@@ -1,18 +1,18 @@
 
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ConvoHealth Visionary</string>
-    <string name="title_activity_main">ConvoHealth Visionary</string>
+    <string name="app_name">AI Doctor Notes</string>
+    <string name="title_activity_main">AI Doctor Notes</string>
     <string name="package_name">app.lovable.5c493edebbc343deb1d23a7209345528</string>
     <string name="custom_url_scheme">app.lovable.5c493edebbc343deb1d23a7209345528</string>
-    <string name="activity_name">ConvoHealth</string>
-    <string name="private_policy">https://convohealth.app/privacy</string>
+    <string name="activity_name">AI Doctor Notes</string>
+    <string name="private_policy">https://aidoctornotes.app/privacy</string>
     <string name="capacitor_background_color">#FFFFFF</string>
     <string name="capacitor_splash_screen_background_color">#FFFFFF</string>
-    <string name="share_app_text">Check out ConvoHealth Visionary - A revolutionary medical scribe app!</string>
-    <string name="app_description">ConvoHealth Visionary helps healthcare professionals create SOAP notes from voice recordings.</string>
+    <string name="share_app_text">Check out AI Doctor Notes - A revolutionary medical scribe app!</string>
+    <string name="app_description">AI Doctor Notes helps healthcare professionals create SOAP notes from voice recordings.</string>
     <string name="mic_permission_reason">Microphone access is needed to record conversations for transcription.</string>
     <string name="internet_permission_reason">Internet access is required to process recordings and generate notes.</string>
-    <string name="app_support_email">support@convohealth.app</string>
+    <string name="app_support_email">support@aidoctornotes.app</string>
     <string name="app_version">1.0.0</string>
 </resources>

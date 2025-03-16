@@ -27,7 +27,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }: SidebarProps) => {
     <ShadcnSidebar>
       <SidebarContent>
         <div className="p-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">MediScribe AI</h2>
+          <h2 className="text-xl font-bold">AI Doctor Notes</h2>
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="lg:hidden p-2 rounded-md hover:bg-gray-200"

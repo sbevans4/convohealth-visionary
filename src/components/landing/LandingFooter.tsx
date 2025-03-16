@@ -9,9 +9,9 @@ const LandingFooter = () => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="h-8 w-8 rounded-full bg-medical-600 flex items-center justify-center">
-                <span className="text-white text-sm font-bold">CN</span>
+                <span className="text-white text-sm font-bold">AD</span>
               </div>
-              <span className="font-display font-semibold">ConvoNotes Medical</span>
+              <span className="font-display font-semibold">AI Doctor Notes</span>
             </div>
             <p className="text-muted-foreground text-sm">
               AI-powered medical documentation for the modern healthcare provider.
@@ -47,7 +47,7 @@ const LandingFooter = () => {
         </div>
         
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-muted-foreground">
-          <div>© {new Date().getFullYear()} ConvoNotes Medical. All rights reserved.</div>
+          <div>© {new Date().getFullYear()} AI Doctor Notes. All rights reserved.</div>
           <div className="mt-4 md:mt-0">
             Made with care for healthcare providers.
           </div>

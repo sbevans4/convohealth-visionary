@@ -8,9 +8,9 @@ const LandingHeader = () => {
       <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full bg-medical-600 flex items-center justify-center">
-            <span className="text-white text-sm font-bold">CN</span>
+            <span className="text-white text-sm font-bold">AD</span>
           </div>
-          <span className="font-display font-semibold text-lg">ConvoNotes Medical</span>
+          <span className="font-display font-semibold text-lg">AI Doctor Notes</span>
         </div>
         
         <nav className="hidden md:flex items-center gap-6">
