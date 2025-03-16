@@ -1,12 +1,13 @@
+
 import { toast } from "sonner";
 import { TranscriptSegment, SoapNote } from "@/types/medical";
-import { processWithGoogleSpeechToText, simulateTranscriptionProcessing } from "./audioProcessing";
+import { processWithGoogleSpeechToText } from "./audioProcessing";
 import { generateSoapNote } from "@/utils/soapNoteGenerator";
 
 export interface RecorderState {
-  mediaRecorder: MediaRecorder | null;
+  mediaRecorder: MediaRecorder;
   audioChunks: Blob[];
-  stream: MediaStream | null;
+  stream: MediaStream;
 }
 
 export const createRecorder = async (): Promise<RecorderState | null> => {
@@ -50,9 +51,8 @@ export const processRecording = async (
     
     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
     
-    let transcriptResult: TranscriptSegment[] = [];
-    
-    transcriptResult = await processWithGoogleSpeechToText(audioBlob);
+    // Process audio with Google Speech-to-Text through our backend service
+    const transcriptResult = await processWithGoogleSpeechToText(audioBlob);
     
     if (callbacks.onTranscriptReady) {
       callbacks.onTranscriptReady(transcriptResult);

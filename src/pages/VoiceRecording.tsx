@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { RefreshCw, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { TranscriptSegment, SoapNote } from "@/types/medical";
+import { SoapNote } from "@/types/medical";
 
 import RecordingHeader from "@/components/voice-recording/RecordingHeader";
 import RecordingControls from "@/components/voice-recording/RecordingControls";
@@ -15,7 +14,6 @@ import { useRecording, ProcessingPhase } from "@/hooks/useRecording";
 
 const VoiceRecording = () => {
   const [activeTab, setActiveTab] = useState("transcript");
-  const [procedureCode, setProcedureCode] = useState<string>("");
   
   // Use our custom hook
   const {
@@ -72,7 +70,7 @@ const VoiceRecording = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header with API Key Manager */}
+      {/* Header with API Status Indicator */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <RecordingHeader 
           recordingStatus={recordingStatus}
@@ -115,7 +113,7 @@ const VoiceRecording = () => {
           setActiveTab={setActiveTab}
           transcript={transcript}
           soapNote={soapNote}
-          onUpdateSoapNote={(updatedNote) => {
+          onUpdateSoapNote={(updatedNote: SoapNote) => {
             // In a real implementation, this would update your state
             toast.success("SOAP note updated");
           }}

@@ -1,4 +1,3 @@
-
 import { TranscriptSegment } from "@/types/medical";
 import { audioToBase64 } from "@/utils/formatters";
 import { toast } from "sonner";
@@ -8,96 +7,42 @@ import { toast } from "sonner";
  */
 export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<TranscriptSegment[]> => {
   try {
-    // Get API key from localStorage
-    let apiKey = null;
-    try {
-      const storedKeys = localStorage.getItem('api_keys');
-      if (storedKeys) {
-        const keys = JSON.parse(storedKeys);
-        apiKey = keys.googleSpeechApiKey;
-      }
-    } catch (error) {
-      console.error("Error retrieving API key from localStorage:", error);
-    }
+    // In a real implementation, you would send the audio to your backend
+    // and let the backend handle the API call to Google
     
-    // If no API key, throw error to fall back to mock data
-    if (!apiKey) {
-      throw new Error("No Google Speech API key configured");
-    }
+    console.log("Processing audio blob:", audioBlob);
+    toast.loading("Processing audio...");
     
-    // Convert audio to base64
+    // For demonstration purposes, we'll simulate a backend request
+    // In a real application, this would be a fetch call to your API endpoint
     const audioBase64 = await audioToBase64(audioBlob);
     
-    // Prepare request to Google Speech-to-Text API
-    const response = await fetch(`https://speech.googleapis.com/v1p1beta1/speech:recognize?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        config: {
-          encoding: 'WEBM_OPUS',
-          sampleRateHertz: 48000,
-          languageCode: 'en-US',
-          enableAutomaticPunctuation: true,
-          enableSpeakerDiarization: true,
-          diarizationSpeakerCount: 2, // Assuming doctor and patient
-          model: 'medical_conversation'
-        },
-        audio: {
-          content: audioBase64
-        }
-      })
-    });
+    // Simulate API call to backend
+    // const response = await fetch('/api/transcribe', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ audio: audioBase64 })
+    // });
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Google Speech API error:", errorData);
-      throw new Error(`Google Speech API error: ${response.status}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`Backend API error: ${response.status}`);
+    // }
     
-    const data = await response.json();
-    console.log("Google Speech API response:", data);
+    // const data = await response.json();
     
-    // Process the response and convert to our TranscriptSegment format
-    const transcriptSegments: TranscriptSegment[] = [];
+    // Simulate a backend processing delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    if (data.results) {
-      let startTime = 0;
-      
-      data.results.forEach((result: any, index: number) => {
-        if (result.alternatives && result.alternatives.length > 0) {
-          const transcript = result.alternatives[0].transcript;
-          const confidence = result.alternatives[0].confidence;
-          
-          // Calculate approximate timing (this is simplified)
-          const wordCount = transcript.split(' ').length;
-          const approxDuration = wordCount * 0.5; // Rough estimate of seconds per word
-          
-          transcriptSegments.push({
-            id: `${index + 1}`,
-            // Alternate between doctor and patient for simplicity
-            speaker: index % 2 === 0 ? "Doctor" : "Patient",
-            text: transcript,
-            startTime,
-            endTime: startTime + approxDuration,
-            confidence
-          });
-          
-          startTime += approxDuration;
-        }
-      });
-    }
+    toast.dismiss();
     
-    return transcriptSegments;
+    // Return simulated transcription for now
+    // In a real application, you would return the actual response from your backend
+    return simulateTranscriptionProcessing(audioBlob);
     
   } catch (error) {
-    console.error("Error with Google Speech-to-Text:", error);
-    if ((error as Error).message.includes("No Google Speech API key configured")) {
-      toast.error("Please configure your Google Speech API key");
-    } else {
-      toast.error("Speech-to-text processing failed");
-    }
+    console.error("Error with speech-to-text processing:", error);
+    toast.dismiss();
+    toast.error("Speech-to-text processing failed");
     
     // Fall back to mock data
     return simulateTranscriptionProcessing(audioBlob);

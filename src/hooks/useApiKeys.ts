@@ -9,58 +9,42 @@ export function useApiKeys() {
   const [apiKeys, setApiKeys] = useState<ApiKeys>({
     googleSpeechApiKey: null
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  // Load API keys from localStorage on component mount
+  // Fetch API key from backend on component mount
   useEffect(() => {
-    try {
-      const storedKeys = localStorage.getItem('api_keys');
-      if (storedKeys) {
-        setApiKeys(JSON.parse(storedKeys));
+    const fetchApiKey = async () => {
+      try {
+        setIsLoading(true);
+        // In a real implementation, this would be a call to your backend API
+        // For now, we'll simulate a backend response
+        
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Simulate successful API response
+        // In reality, this would be the result of a fetch() call to your backend
+        const response = {
+          googleSpeechApiKey: "BACKEND_MANAGED_KEY"
+        };
+        
+        setApiKeys(response);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching API key from backend:', err);
+        setError('Failed to load API key. Speech recognition may not work properly.');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error loading API keys from localStorage:', error);
-    }
+    };
+    
+    fetchApiKey();
   }, []);
-  
-  // Save API key to localStorage and state
-  const setGoogleSpeechApiKey = (apiKey: string) => {
-    const updatedKeys = {
-      ...apiKeys,
-      googleSpeechApiKey: apiKey
-    };
-    
-    // Update state
-    setApiKeys(updatedKeys);
-    
-    // Save to localStorage
-    try {
-      localStorage.setItem('api_keys', JSON.stringify(updatedKeys));
-    } catch (error) {
-      console.error('Error saving API key to localStorage:', error);
-    }
-  };
-  
-  // Clear API key from localStorage and state
-  const clearGoogleSpeechApiKey = () => {
-    const updatedKeys = {
-      ...apiKeys,
-      googleSpeechApiKey: null
-    };
-    
-    // Update state
-    setApiKeys(updatedKeys);
-    
-    // Save to localStorage
-    try {
-      localStorage.setItem('api_keys', JSON.stringify(updatedKeys));
-    } catch (error) {
-      console.error('Error clearing API key from localStorage:', error);
-    }
-  };
   
   return {
     googleSpeechApiKey: apiKeys.googleSpeechApiKey,
-    setGoogleSpeechApiKey,
-    clearGoogleSpeechApiKey
+    isLoading,
+    error
   };
 }

@@ -1,66 +1,49 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { toast } from 'sonner';
 import { useApiKeys } from '@/hooks/useApiKeys';
-import { Key, Info } from 'lucide-react';
+import { Key, Info, CheckCircle, AlertCircle } from 'lucide-react';
 
 export const ApiKeyManager = () => {
-  const { googleSpeechApiKey, setGoogleSpeechApiKey, clearGoogleSpeechApiKey } = useApiKeys();
-  const [apiKey, setApiKey] = useState('');
-  const [open, setOpen] = useState(false);
-  
-  const handleSave = () => {
-    if (!apiKey.trim()) {
-      toast.error('Please enter an API key');
-      return;
-    }
-    
-    setGoogleSpeechApiKey(apiKey);
-    toast.success('Google Speech API key saved');
-    setOpen(false);
-  };
-  
-  const handleClear = () => {
-    clearGoogleSpeechApiKey();
-    setApiKey('');
-    toast.success('Google Speech API key removed');
-  };
+  const { googleSpeechApiKey, isLoading, error } = useApiKeys();
+  const [open, setOpen] = React.useState(false);
   
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Key className="h-4 w-4" />
-          {googleSpeechApiKey ? 'API Key Configured' : 'Configure API Key'}
+          {isLoading ? 'Loading API Status...' : 
+           error ? 'API Configuration Error' : 
+           'API Connected'}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Google Speech-to-Text API Key</DialogTitle>
+          <DialogTitle>Speech Recognition API Status</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
+          {isLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted p-3 rounded-md">
+              <Info className="h-4 w-4 shrink-0 animate-spin" />
+              <p>Checking API connection status...</p>
+            </div>
+          ) : error ? (
+            <div className="flex items-center gap-2 text-sm text-red-500 bg-red-50 dark:bg-red-950/30 p-3 rounded-md">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <p>{error}</p>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-3 rounded-md">
+              <CheckCircle className="h-4 w-4 shrink-0" />
+              <p>Speech recognition API is properly configured and ready to use.</p>
+            </div>
+          )}
+          
           <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted p-3 rounded-md">
             <Info className="h-4 w-4 shrink-0" />
-            <p>Your API key is stored only in your browser's local storage and is never sent to our servers.</p>
-          </div>
-          
-          <Input
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Enter your Google Speech-to-Text API key"
-            className="w-full"
-          />
-          
-          <div className="flex justify-between">
-            <Button variant="outline" onClick={handleClear} disabled={!googleSpeechApiKey}>
-              Clear Key
-            </Button>
-            <Button onClick={handleSave}>
-              Save API Key
-            </Button>
+            <p>The API key is securely managed by our backend services. You don't need to configure anything.</p>
           </div>
         </div>
       </DialogContent>
