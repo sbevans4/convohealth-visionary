@@ -26,7 +26,7 @@ const Subscription = () => {
       // Clear the URL parameter
       window.history.replaceState({}, '', window.location.pathname);
     } else if (checkoutCanceled === 'true') {
-      toast.info('Your payment was canceled. You can try again when you're ready.');
+      toast.info("Your payment was canceled. You can try again when you're ready.");
       // Clear the URL parameter
       window.history.replaceState({}, '', window.location.pathname);
     }
