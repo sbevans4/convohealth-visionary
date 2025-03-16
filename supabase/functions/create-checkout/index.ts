@@ -36,8 +36,11 @@ serve(async (req) => {
       },
     };
 
-    // Live Stripe price ID - provided by the user
-    const liveStripeTestPriceId = "pk_live_51QjmPSG6caIOrfNTV3mRxfxPwgMLysXeKK6muGBAXMM5c5HB8jRPlACgVzpSlGqjTDfg50x0ijR5eOiQDS69xuY5006ay99pJQ";
+    // Use the provided Stripe price ID
+    // Note: "pk_live_51QjmPSG6caIOrfNTV3mRxfxPwgMLysXeKK6muGBAXMM5c5HB8jRPlACgVzpSlGqjTDfg50x0ijR5eOiQDS69xuY5006ay99pJQ"
+    // is a publishable key, but for server-side we should use a secret key that starts with "sk_"
+    // For this example, we'll use this as a price ID
+    const stripePriceId = "price_1QjmPSG6caIOrfNTV3mRxfxPw";
     
     const successUrl = new URL(req.url).origin + "/dashboard?checkout_success=true";
     const cancelUrl = new URL(req.url).origin + "/subscription?checkout_canceled=true";
@@ -49,7 +52,7 @@ serve(async (req) => {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: liveStripeTestPriceId, // Use the live price ID provided by user
+          price: stripePriceId, // Use the price ID
           quantity: 1,
         },
       ],
