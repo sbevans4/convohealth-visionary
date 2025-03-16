@@ -1,6 +1,8 @@
+
 import { TranscriptSegment } from "@/types/medical";
 import { audioToBase64 } from "@/utils/formatters";
 import { toast } from "sonner";
+import { useApiKeys } from "@/hooks/useApiKeys";
 
 /**
  * Process audio with Google Speech-to-Text API through Supabase backend
@@ -15,7 +17,7 @@ export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<Tr
     
     // In production, this would be a call to your Supabase Edge Function
     // For example:
-    // const { data, error } = await supabaseClient.functions.invoke('transcribe-audio', {
+    // const { data, error } = await supabase.functions.invoke('transcribe-audio', {
     //   body: { audio: audioBase64 }
     // });
     // if (error) throw new Error(`Supabase Function error: ${error.message}`);

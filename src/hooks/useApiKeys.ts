@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface ApiKeys {
   googleSpeechApiKey: string | null;
@@ -14,7 +13,6 @@ export function useApiKeys() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
   
   // Fetch API keys from Supabase backend on component mount
   useEffect(() => {
@@ -60,14 +58,9 @@ export function useApiKeys() {
       }
     };
     
-    // Only fetch if user is authenticated
-    if (user) {
-      fetchApiKeys();
-    } else {
-      setIsLoading(false);
-      setError('Authentication required to access API keys');
-    }
-  }, [user]);
+    // Fetch API keys on component mount without requiring user authentication
+    fetchApiKeys();
+  }, []);
   
   return {
     googleSpeechApiKey: apiKeys.googleSpeechApiKey,
