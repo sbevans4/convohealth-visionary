@@ -3,40 +3,31 @@ import { audioToBase64 } from "@/utils/formatters";
 import { toast } from "sonner";
 
 /**
- * Process audio with Google Speech-to-Text API
+ * Process audio with Google Speech-to-Text API through Supabase backend
  */
 export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<TranscriptSegment[]> => {
   try {
-    // In a real implementation, you would send the audio to your backend
-    // and let the backend handle the API call to Google
-    
     console.log("Processing audio blob:", audioBlob);
     toast.loading("Processing audio...");
     
-    // For demonstration purposes, we'll simulate a backend request
-    // In a real application, this would be a fetch call to your API endpoint
+    // Convert audio to base64 for transmission
     const audioBase64 = await audioToBase64(audioBlob);
     
-    // Simulate API call to backend
-    // const response = await fetch('/api/transcribe', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ audio: audioBase64 })
+    // In production, this would be a call to your Supabase Edge Function
+    // For example:
+    // const { data, error } = await supabaseClient.functions.invoke('transcribe-audio', {
+    //   body: { audio: audioBase64 }
     // });
+    // if (error) throw new Error(`Supabase Function error: ${error.message}`);
+    // return data;
     
-    // if (!response.ok) {
-    //   throw new Error(`Backend API error: ${response.status}`);
-    // }
-    
-    // const data = await response.json();
-    
-    // Simulate a backend processing delay
+    // Simulate Supabase function call delay
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     toast.dismiss();
     
     // Return simulated transcription for now
-    // In a real application, you would return the actual response from your backend
+    // In production, this would be replaced with the actual response from Supabase
     return simulateTranscriptionProcessing(audioBlob);
     
   } catch (error) {

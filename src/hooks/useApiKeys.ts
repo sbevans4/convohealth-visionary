@@ -12,27 +12,26 @@ export function useApiKeys() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Fetch API key from backend on component mount
+  // Fetch API key from Supabase backend on component mount
   useEffect(() => {
     const fetchApiKey = async () => {
       try {
         setIsLoading(true);
-        // In a real implementation, this would be a call to your backend API
-        // For now, we'll simulate a backend response
+        // In production, this would be a call to your Supabase function
+        // For example: const { data, error } = await supabaseClient.functions.invoke('get-api-keys')
         
         // Simulate API call delay
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        // Simulate successful API response
-        // In reality, this would be the result of a fetch() call to your backend
+        // Simulate successful API response from Supabase
         const response = {
-          googleSpeechApiKey: "BACKEND_MANAGED_KEY"
+          googleSpeechApiKey: "SUPABASE_MANAGED_KEY"
         };
         
         setApiKeys(response);
         setError(null);
       } catch (err) {
-        console.error('Error fetching API key from backend:', err);
+        console.error('Error fetching API key from Supabase:', err);
         setError('Failed to load API key. Speech recognition may not work properly.');
       } finally {
         setIsLoading(false);
