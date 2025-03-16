@@ -20,26 +20,24 @@ serve(async (req) => {
   try {
     const { planId, interval } = await req.json();
     
-    // Map plan ID and interval to your Stripe price IDs
-    // In a real application, you would store these IDs in a database
+    // Map plan ID and interval to Stripe price IDs
     const priceMap = {
       basic: {
-        month: "price_basic_monthly", // Replace with your actual Stripe price ID
-        year: "price_basic_yearly",   // Replace with your actual Stripe price ID
+        month: "price_basic_monthly",
+        year: "price_basic_yearly",
       },
       professional: {
-        month: "price_professional_monthly", // Replace with your actual Stripe price ID
-        year: "price_professional_yearly",   // Replace with your actual Stripe price ID
+        month: "price_professional_monthly",
+        year: "price_professional_yearly",
       },
       enterprise: {
-        month: "price_enterprise_monthly", // Replace with your actual Stripe price ID
-        year: "price_enterprise_yearly",   // Replace with your actual Stripe price ID
+        month: "price_enterprise_monthly",
+        year: "price_enterprise_yearly",
       },
     };
 
-    // For demo purposes - map to test price IDs
-    // In production, you should have actual price IDs from your Stripe dashboard
-    const demoTestPriceId = "price_1OoLK9BLJVoRlF5mJmwbIBZ5"; // Stripe test price ID
+    // Live Stripe price ID - provided by the user
+    const liveStripeTestPriceId = "pk_live_51QjmPSG6caIOrfNTV3mRxfxPwgMLysXeKK6muGBAXMM5c5HB8jRPlACgVzpSlGqjTDfg50x0ijR5eOiQDS69xuY5006ay99pJQ";
     
     const successUrl = new URL(req.url).origin + "/dashboard?checkout_success=true";
     const cancelUrl = new URL(req.url).origin + "/subscription?checkout_canceled=true";
@@ -51,7 +49,7 @@ serve(async (req) => {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: demoTestPriceId, // Use mapped price ID in production
+          price: liveStripeTestPriceId, // Use the live price ID provided by user
           quantity: 1,
         },
       ],
