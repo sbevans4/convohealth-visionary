@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -11,6 +10,7 @@ import {
   ChevronRight,
   BrainCircuit
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Landing = () => {
   return (
