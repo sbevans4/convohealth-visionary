@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -310,31 +311,31 @@ const Landing = () => {
               <ul className="space-y-2 text-sm">
                 <li><a href="#features" className="text-muted-foreground hover:text-primary transition-colors">Features</a></li>
                 <li><a href="#pricing" className="text-muted-foreground hover:text-primary transition-colors">Pricing</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Security</a></li>
+                <li><Link to="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">Dashboard</Link></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-medium mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">About Us</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Careers</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Contact</a></li>
+                <li><Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
+                <li><Link to="/careers" className="text-muted-foreground hover:text-primary transition-colors">Careers</Link></li>
+                <li><Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-medium mb-4">Legal</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">HIPAA Compliance</a></li>
+                <li><Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link></li>
+                <li><Link to="/hipaa" className="text-muted-foreground hover:text-primary transition-colors">HIPAA Compliance</Link></li>
               </ul>
             </div>
           </div>
           
           <div className="border-t mt-8 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-muted-foreground">
-            <div>© 2023 ConvoNotes Medical. All rights reserved.</div>
+            <div>© {new Date().getFullYear()} ConvoNotes Medical. All rights reserved.</div>
             <div className="mt-4 md:mt-0">
               Made with care for healthcare providers.
             </div>

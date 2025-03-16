@@ -26,9 +26,9 @@ const MainLayout = () => {
                 <Link to="/privacy-policy" className="hover:underline">
                   Privacy Policy
                 </Link>
-                <a href="#" className="hover:underline">
+                <Link to="/terms" className="hover:underline">
                   Terms of Service
-                </a>
+                </Link>
               </div>
             </div>
           </footer>
