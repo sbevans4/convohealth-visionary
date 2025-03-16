@@ -33,7 +33,7 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-lg font-semibold mb-2">1. Introduction</h2>
             <p>
-              Welcome to MediScribe AI ("Company," "we," "our," or "us"). We are committed to protecting your privacy 
+              Welcome to AI Doctor Notes ("Company," "we," "our," or "us"). We are committed to protecting your privacy 
               and ensuring that your personal and medical information is handled securely and responsibly. 
               This Privacy Policy explains how we collect, use, disclose, and safeguard your information when 
               you use our AI-powered medical SOAP notes creator (the "Service").
@@ -53,7 +53,6 @@ const PrivacyPolicy = () => {
             <h3 className="font-medium mt-3">(b) Medical Information:</h3>
             <ul className="list-disc pl-6 space-y-1">
               <li>Patient data inputted into the Service for SOAP note generation.</li>
-              <li>Voice recordings for transcription purposes.</li>
               <li>Diagnoses, treatments, medications, and other clinical documentation.</li>
             </ul>
             
@@ -68,8 +67,7 @@ const PrivacyPolicy = () => {
             <h2 className="text-lg font-semibold mb-2">3. How We Use Your Information</h2>
             <p>We use the collected information to:</p>
             <ul className="list-disc pl-6 space-y-1">
-              <li>Transcribe voice recordings into text.</li>
-              <li>Generate SOAP notes based on user input and transcriptions.</li>
+              <li>Generate SOAP notes based on user input.</li>
               <li>Improve and enhance our AI model and Service functionality.</li>
               <li>Ensure compliance with legal and regulatory requirements.</li>
               <li>Provide customer support and respond to inquiries.</li>
@@ -84,8 +82,6 @@ const PrivacyPolicy = () => {
               <li>End-to-end encryption of medical data.</li>
               <li>Access controls and authentication protocols.</li>
               <li>Compliance with HIPAA, GDPR, and other relevant regulations.</li>
-              <li>Regular security audits and vulnerability assessments.</li>
-              <li>Employee training on data privacy and security.</li>
             </ul>
           </section>
           
@@ -97,7 +93,6 @@ const PrivacyPolicy = () => {
             <ul className="list-disc pl-6 space-y-1">
               <li>When required by law or legal processes.</li>
               <li>With trusted service providers who assist in maintaining our platform (under strict confidentiality agreements).</li>
-              <li>With third-party AI service providers like Google Speech-to-Text and Deepseek AI to process transcriptions and generate SOAP notes.</li>
               <li>With your explicit consent.</li>
             </ul>
           </section>
@@ -106,7 +101,7 @@ const PrivacyPolicy = () => {
             <h2 className="text-lg font-semibold mb-2">6. Data Retention</h2>
             <p>
               We retain data only as long as necessary for the intended purpose or as required by law. 
-              Users may request deletion of their data by contacting us at support@mediscribe.ai.
+              Users may request deletion of their data by contacting us at support@aidoctornotes.app.
             </p>
           </section>
           
@@ -117,12 +112,7 @@ const PrivacyPolicy = () => {
               <li>Access, modify, or delete your personal data.</li>
               <li>Restrict or object to certain processing activities.</li>
               <li>Withdraw consent for data collection.</li>
-              <li>Receive a copy of your data in a portable format.</li>
-              <li>Lodge a complaint with a supervisory authority.</li>
             </ul>
-            <p className="mt-2">
-              To exercise these rights, please contact us using the information provided in the Contact Us section.
-            </p>
           </section>
           
           <section>
@@ -137,7 +127,6 @@ const PrivacyPolicy = () => {
             <h2 className="text-lg font-semibold mb-2">9. Changes to This Privacy Policy</h2>
             <p>
               We may update this Privacy Policy periodically. Any changes will be posted on this page with an updated effective date.
-              We will notify users of material changes via email or through the Service.
             </p>
           </section>
           
@@ -145,10 +134,9 @@ const PrivacyPolicy = () => {
             <h2 className="text-lg font-semibold mb-2">10. Contact Us</h2>
             <p>If you have any questions or concerns about this Privacy Policy, please contact us at:</p>
             <div className="mt-2">
-              <p>MediScribe AI</p>
-              <p>Email: support@mediscribe.ai</p>
-              <p>Address: 123 Health Tech Plaza, Suite 400, San Francisco, CA 94105</p>
-              <p>Phone: (555) 123-4567</p>
+              <p>AI Doctor Notes</p>
+              <p>Email: support@aidoctornotes.app</p>
+              <p>Website: https://aidoctornotes.app</p>
             </div>
           </section>
         </CardContent>
