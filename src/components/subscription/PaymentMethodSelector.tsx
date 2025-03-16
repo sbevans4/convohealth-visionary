@@ -1,5 +1,5 @@
 
-import { CreditCard, PaypalLogo } from 'lucide-react';
+import { CreditCard } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { PaymentMethod } from '@/hooks/useSubscription';
 
@@ -27,7 +27,7 @@ const PaymentMethodSelector = ({
         onClick={() => onSelectMethod('paypal')}
         className="justify-start"
       >
-        <PaypalLogo className="mr-2 h-4 w-4" />
+        <span className="mr-2 text-blue-600 font-bold">P</span>
         PayPal
       </Button>
     </div>
