@@ -96,9 +96,9 @@ const PricingSection = () => {
     },
     {
       name: "Enterprise",
-      price: "$199",
+      price: "$1999",
       period: "per month",
-      description: "For large organizations",
+      description: "For up to 6 providers",
       features: [
         "Unlimited recordings",
         "Custom AI model training",

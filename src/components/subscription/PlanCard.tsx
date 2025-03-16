@@ -24,7 +24,7 @@ const PlanCard = ({ plan, isLoading, paymentMethod, onSubscribe }: PlanCardProps
         <CardHeader>
           <CardTitle>{plan.name}</CardTitle>
           <CardDescription>
-            {plan.name === "Enterprise" ? "For large organizations" : 
+            {plan.name === "Enterprise" ? "For up to 6 providers" : 
              plan.name === "Professional" ? "For small practices" : 
              "For individual practitioners"}
           </CardDescription>
@@ -59,7 +59,7 @@ const PlanCard = ({ plan, isLoading, paymentMethod, onSubscribe }: PlanCardProps
               </>
             ) : (
               plan.name === "Enterprise" ? 
-                "Contact Sales" : 
+                "Contact for Custom Pricing" : 
                 `Subscribe with ${paymentMethod === 'card' ? 'Card' : 'PayPal'}`
             )}
           </Button>

@@ -63,9 +63,10 @@ const Subscription = () => {
     {
       id: "enterprise",
       name: "Enterprise",
-      price: billingInterval === 'month' ? 199 : 1990,
+      price: billingInterval === 'month' ? 1999 : 19990,
       interval: billingInterval,
       features: [
+        "For up to 6 providers",
         "Unlimited recordings",
         "Custom AI model training",
         "EHR integration",
@@ -78,7 +79,7 @@ const Subscription = () => {
   const handleSubscribe = async (planId: string) => {
     if (planId === "enterprise") {
       // For enterprise plans, contact sales
-      toast.info('Contact our sales team for enterprise plans');
+      toast.info('Contact our sales team for custom enterprise pricing');
       return;
     }
     
