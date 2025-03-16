@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@13.2.0";
 
-// Initialize Stripe with the secret key
+// Initialize Stripe with the secret key from environment
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
   apiVersion: "2023-10-16",
 });
@@ -22,18 +22,19 @@ serve(async (req) => {
     const { planId, interval } = await req.json();
     
     // Map plan ID and interval to Stripe price IDs
+    // Note: These should be replaced with your actual Stripe price IDs from your Stripe dashboard
     const priceMap = {
       basic: {
-        month: "price_basic_monthly",
-        year: "price_basic_yearly",
+        month: "price_basic_monthly", // Replace with actual Stripe price ID
+        year: "price_basic_yearly",   // Replace with actual Stripe price ID
       },
       professional: {
-        month: "price_professional_monthly",
-        year: "price_professional_yearly",
+        month: "price_professional_monthly", // Replace with actual Stripe price ID
+        year: "price_professional_yearly",   // Replace with actual Stripe price ID
       },
       enterprise: {
-        month: "price_enterprise_monthly",
-        year: "price_enterprise_yearly",
+        month: "price_enterprise_monthly", // Replace with actual Stripe price ID
+        year: "price_enterprise_yearly",   // Replace with actual Stripe price ID
       },
     };
 
