@@ -1,37 +1,15 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  Mic,
-  MicOff,
-  Pause,
-  Play,
-  RefreshCw,
-  Loader2,
-  Clock,
-  Save,
-  Check,
-  Sparkles,
-  ChevronDown,
-  ChevronUp,
-  Download,
-  Share2,
-  Copy
-} from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from "@/components/ui/accordion";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { TranscriptSegment, SoapNote } from "@/types/medical";
 import { useToast } from "@/components/ui/use-toast";
+import { TranscriptSegment, SoapNote } from "@/types/medical";
+
+import RecordingHeader from "@/components/voice-recording/RecordingHeader";
+import RecordingControls from "@/components/voice-recording/RecordingControls";
+import ProcessingIndicator from "@/components/voice-recording/ProcessingIndicator";
+import ResultTabs from "@/components/voice-recording/ResultTabs";
 
 const VoiceRecording = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -68,13 +46,6 @@ const VoiceRecording = () => {
       if (interval) clearInterval(interval);
     };
   }, [isRecording, isPaused]);
-  
-  // Format time as MM:SS
-  const formatTime = (timeInSeconds: number) => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
   
   // Start recording
   const startRecording = () => {
@@ -243,323 +214,37 @@ const VoiceRecording = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <h1 className="text-3xl font-display font-semibold tracking-tight">Voice Recording</h1>
-          <p className="text-muted-foreground">
-            Record and transcribe patient conversations automatically
-          </p>
-        </motion.div>
-        
-        {recordingStatus === 'complete' && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-2"
-          >
-            <Button variant="outline" size="sm" onClick={copySoapNote}>
-              <Copy className="mr-2 h-4 w-4" />
-              Copy
-            </Button>
-            <Button variant="outline" size="sm">
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-            <Button variant="outline" size="sm">
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
-            </Button>
-            <Button variant="default" size="sm" onClick={saveRecording}>
-              <Save className="mr-2 h-4 w-4" />
-              Save
-            </Button>
-          </motion.div>
-        )}
-      </div>
-
-      {/* Session Information */}
-      {(recordingStatus !== 'idle' && recordingStatus !== 'recording' && recordingStatus !== 'paused') && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <Card className="border shadow-soft bg-background">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center">
-                    <Input 
-                      value="Patient Encounter - Jane Doe" 
-                      className="border-none text-lg font-medium p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0" 
-                    />
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Clock className="mr-1 h-3.5 w-3.5" />
-                      {new Date().toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Duration: {formatTime(recordingTime)}
-                    </div>
-                  </div>
-                </div>
-                {recordingStatus === 'complete' && (
-                  <div className="flex items-center mt-4 md:mt-0">
-                    <div className="bg-green-100 text-green-700 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium">
-                      <Check className="h-3.5 w-3.5" />
-                      Processing Complete
-                    </div>
-                  </div>
-                )}
-                {recordingStatus === 'processing' && (
-                  <div className="flex items-center mt-4 md:mt-0">
-                    <div className="bg-blue-100 text-blue-700 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium">
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      Processing Audio
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
+      <RecordingHeader 
+        recordingStatus={recordingStatus}
+        recordingTime={recordingTime}
+        onCopy={copySoapNote}
+        onSave={saveRecording}
+      />
 
       {/* Recording Controls */}
       {(recordingStatus === 'idle' || recordingStatus === 'recording' || recordingStatus === 'paused') && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="flex justify-center"
-        >
-          <Card className="border shadow-soft bg-background max-w-xl w-full">
-            <CardContent className="p-6 flex flex-col items-center">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-semibold mb-2">
-                  {recordingStatus === 'idle' ? "Ready to Record" : 
-                   recordingStatus === 'paused' ? "Recording Paused" : "Recording in Progress"}
-                </h2>
-                <p className="text-muted-foreground">
-                  {recordingStatus === 'idle' ? "Click the microphone button to start" : 
-                   recordingStatus === 'paused' ? "Click resume to continue recording" : 
-                   "Capturing audio from your conversation"}
-                </p>
-              </div>
-              
-              <div className="relative mb-8">
-                {recordingStatus === 'recording' && (
-                  <div className="absolute inset-0 rounded-full bg-red-500/20 animate-pulse-soft"></div>
-                )}
-                <div 
-                  className={cn(
-                    "h-24 w-24 rounded-full flex items-center justify-center border-4 transition-all",
-                    recordingStatus === 'recording' 
-                      ? "border-red-500 bg-red-50"
-                      : recordingStatus === 'paused'
-                        ? "border-amber-500 bg-amber-50"
-                        : "border-medical-500 bg-medical-50"
-                  )}
-                >
-                  {recordingStatus === 'idle' && (
-                    <Mic className="h-10 w-10 text-medical-600" />
-                  )}
-                  {recordingStatus === 'recording' && (
-                    <MicOff className="h-10 w-10 text-red-600" />
-                  )}
-                  {recordingStatus === 'paused' && (
-                    <Play className="h-10 w-10 text-amber-600" />
-                  )}
-                </div>
-              </div>
-              
-              {recordingStatus !== 'idle' && (
-                <div className="text-3xl font-mono font-semibold mb-8 tracking-widest">
-                  {formatTime(recordingTime)}
-                </div>
-              )}
-              
-              <div className="flex items-center gap-4">
-                {recordingStatus === 'idle' && (
-                  <Button size="lg" onClick={startRecording} className="px-8">
-                    <Mic className="mr-2 h-5 w-5" />
-                    Start Recording
-                  </Button>
-                )}
-                
-                {recordingStatus === 'recording' && (
-                  <>
-                    <Button size="lg" variant="outline" onClick={pauseRecording}>
-                      <Pause className="mr-2 h-5 w-5" />
-                      Pause
-                    </Button>
-                    <Button size="lg" variant="destructive" onClick={stopRecording}>
-                      <MicOff className="mr-2 h-5 w-5" />
-                      Stop Recording
-                    </Button>
-                  </>
-                )}
-                
-                {recordingStatus === 'paused' && (
-                  <>
-                    <Button size="lg" variant="outline" onClick={resumeRecording}>
-                      <Play className="mr-2 h-5 w-5" />
-                      Resume
-                    </Button>
-                    <Button size="lg" variant="destructive" onClick={stopRecording}>
-                      <MicOff className="mr-2 h-5 w-5" />
-                      Stop Recording
-                    </Button>
-                  </>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <RecordingControls 
+          recordingStatus={recordingStatus}
+          recordingTime={recordingTime}
+          onStartRecording={startRecording}
+          onPauseRecording={pauseRecording}
+          onResumeRecording={resumeRecording}
+          onStopRecording={stopRecording}
+        />
       )}
 
       {/* Processing Animation */}
-      {recordingStatus === 'processing' && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex justify-center py-12"
-        >
-          <div className="text-center">
-            <div className="flex flex-col items-center">
-              <Loader2 className="h-16 w-16 text-medical-500 animate-spin mb-6" />
-              <h3 className="text-xl font-semibold mb-2">Processing Your Recording</h3>
-              <p className="text-muted-foreground mb-8 max-w-md">
-                We're transcribing your conversation and generating a SOAP note. This usually takes about 30 seconds.
-              </p>
-              <div className="h-2 w-64 bg-medical-100 rounded-full overflow-hidden">
-                <div className="h-full bg-medical-500 rounded-full animate-pulse" style={{ width: '70%' }}></div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
+      {recordingStatus === 'processing' && <ProcessingIndicator />}
 
       {/* Results Tabs - Only show when processing is complete */}
       {recordingStatus === 'complete' && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="transcript">Transcript</TabsTrigger>
-              <TabsTrigger value="soap">SOAP Note</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="transcript" className="mt-0">
-              <Card className="border shadow-soft">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    {transcript.map((segment) => (
-                      <div key={segment.id} className="flex gap-4">
-                        <div className={cn(
-                          "px-3 py-1 rounded-full text-xs font-medium h-fit",
-                          segment.speaker === "Doctor" 
-                            ? "bg-medical-100 text-medical-800" 
-                            : "bg-green-100 text-green-800"
-                        )}>
-                          {segment.speaker}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-base leading-relaxed">{segment.text}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {formatTime(segment.startTime)} - {formatTime(segment.endTime)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="soap" className="mt-0">
-              <Card className="border shadow-soft">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">SOAP Note</h3>
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground bg-secondary px-2 py-1 rounded-full">
-                      <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                      AI Generated
-                    </div>
-                  </div>
-                  
-                  <Accordion type="single" collapsible defaultValue="subjective" className="w-full">
-                    <AccordionItem value="subjective">
-                      <AccordionTrigger className="text-base font-medium">
-                        Subjective
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <Textarea 
-                          value={soapNote.subjective} 
-                          onChange={(e) => setSoapNote({...soapNote, subjective: e.target.value})}
-                          className="min-h-24 resize-none"
-                        />
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="objective">
-                      <AccordionTrigger className="text-base font-medium">
-                        Objective
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <Textarea 
-                          value={soapNote.objective} 
-                          onChange={(e) => setSoapNote({...soapNote, objective: e.target.value})}
-                          className="min-h-24 resize-none"
-                        />
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="assessment">
-                      <AccordionTrigger className="text-base font-medium">
-                        Assessment
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <Textarea 
-                          value={soapNote.assessment} 
-                          onChange={(e) => setSoapNote({...soapNote, assessment: e.target.value})}
-                          className="min-h-24 resize-none"
-                        />
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="plan">
-                      <AccordionTrigger className="text-base font-medium">
-                        Plan
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <Textarea 
-                          value={soapNote.plan} 
-                          onChange={(e) => setSoapNote({...soapNote, plan: e.target.value})}
-                          className="min-h-24 resize-none"
-                        />
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </motion.div>
+        <ResultTabs 
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          transcript={transcript}
+          soapNote={soapNote}
+          onUpdateSoapNote={setSoapNote}
+        />
       )}
 
       {/* Action Buttons at Bottom */}
