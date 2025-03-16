@@ -4,7 +4,7 @@ import { TranscriptSegment, SoapNote } from "@/types/medical";
 import { RecordingState, ProcessingPhase, UseRecordingOptions } from "./recording/types";
 import { createRecorder, stopRecorder, processRecording, RecorderState } from "./recording/recorderManager";
 
-export { ProcessingPhase } from "./recording/types";
+export type { ProcessingPhase } from "./recording/types";
 
 export function useRecording(options?: UseRecordingOptions) {
   const [isRecording, setIsRecording] = useState(false);
