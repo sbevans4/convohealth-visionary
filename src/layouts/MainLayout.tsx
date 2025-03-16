@@ -26,6 +26,9 @@ const MainLayout = () => {
                 <Link to="/privacy-policy" className="hover:underline">
                   Privacy Policy
                 </Link>
+                <Link to="/hipaa" className="hover:underline">
+                  HIPAA Compliance
+                </Link>
                 <Link to="/terms" className="hover:underline">
                   Terms of Service
                 </Link>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -11,6 +12,7 @@ import Subscription from '@/pages/Subscription';
 import NotFound from '@/pages/NotFound';
 import MainLayout from '@/layouts/MainLayout';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import HipaaCompliance from '@/pages/HipaaCompliance';
 
 function App() {
   return (
@@ -25,6 +27,7 @@ function App() {
           <Route path="/image-analysis" element={<ImageAnalysis />} />
           <Route path="/subscription" element={<Subscription />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/hipaa" element={<HipaaCompliance />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
