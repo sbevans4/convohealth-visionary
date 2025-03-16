@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@13.2.0";
 
+// Initialize Stripe with the secret key
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
   apiVersion: "2023-10-16",
 });
@@ -36,23 +37,24 @@ serve(async (req) => {
       },
     };
 
-    // Use the provided Stripe price ID
-    // Note: "pk_live_51QjmPSG6caIOrfNTV3mRxfxPwgMLysXeKK6muGBAXMM5c5HB8jRPlACgVzpSlGqjTDfg50x0ijR5eOiQDS69xuY5006ay99pJQ"
-    // is a publishable key, but for server-side we should use a secret key that starts with "sk_"
-    // For this example, we'll use this as a price ID
-    const stripePriceId = "price_1QjmPSG6caIOrfNTV3mRxfxPw";
+    // Get the Stripe price ID based on the plan and interval
+    const stripePriceId = priceMap[planId]?.[interval];
+    
+    if (!stripePriceId) {
+      throw new Error(`Invalid plan (${planId}) or interval (${interval})`);
+    }
     
     const successUrl = new URL(req.url).origin + "/dashboard?checkout_success=true";
     const cancelUrl = new URL(req.url).origin + "/subscription?checkout_canceled=true";
 
-    console.log(`Creating checkout session for plan: ${planId}, interval: ${interval}`);
+    console.log(`Creating checkout session for plan: ${planId}, interval: ${interval}, price ID: ${stripePriceId}`);
     
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
         {
-          price: stripePriceId, // Use the price ID
+          price: stripePriceId,
           quantity: 1,
         },
       ],
