@@ -2,12 +2,35 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check } from "lucide-react";
-import { useState } from "react";
+import { Check, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { SubscriptionPlan } from "@/types/medical";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const Subscription = () => {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const { createCheckout, isLoading } = useSubscription();
+  const [searchParams] = useSearchParams();
+  
+  useEffect(() => {
+    // Check URL for query parameters
+    const checkoutSuccess = searchParams.get('checkout_success');
+    const checkoutCanceled = searchParams.get('checkout_canceled');
+    
+    if (checkoutSuccess === 'true') {
+      setShowSuccessDialog(true);
+      // Clear the URL parameter
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (checkoutCanceled === 'true') {
+      toast.info('Your payment was canceled. You can try again when you're ready.');
+      // Clear the URL parameter
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [searchParams]);
   
   const subscriptionPlans: SubscriptionPlan[] = [
     {
@@ -51,9 +74,15 @@ const Subscription = () => {
     }
   ];
 
-  const handleSubscribe = (planId: string) => {
-    console.log(`Selected plan: ${planId}, billing: ${billingInterval}`);
-    // In a real app, this would navigate to checkout or open a payment modal
+  const handleSubscribe = async (planId: string) => {
+    if (planId === "enterprise") {
+      // For enterprise plans, contact sales
+      toast.info('Contact our sales team for enterprise plans');
+      return;
+    }
+    
+    // Create checkout session and redirect to Stripe
+    await createCheckout(planId, billingInterval);
   };
 
   return (
@@ -130,8 +159,16 @@ const Subscription = () => {
                   onClick={() => handleSubscribe(plan.id)} 
                   className="w-full"
                   variant={plan.recommended ? "default" : "outline"}
+                  disabled={isLoading}
                 >
-                  {plan.name === "Enterprise" ? "Contact Sales" : "Subscribe Now"}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    plan.name === "Enterprise" ? "Contact Sales" : "Subscribe Now"
+                  )}
                 </Button>
               </CardFooter>
             </Card>
@@ -143,6 +180,23 @@ const Subscription = () => {
         <p>All plans include 7-day free trial. No credit card required to start.</p>
         <p className="mt-1">Have questions? <a href="#" className="text-primary underline">Contact our sales team</a></p>
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Subscription Successful!</DialogTitle>
+            <DialogDescription>
+              Thank you for subscribing to MediScribe AI. Your account has been upgraded and you now have access to all the features of your plan.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center mt-4">
+            <Button onClick={() => setShowSuccessDialog(false)}>
+              Continue to Dashboard
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
