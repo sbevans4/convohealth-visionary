@@ -167,7 +167,7 @@ const Landing = () => {
             {[
               {
                 name: "Basic",
-                price: "$29",
+                price: "$99",
                 period: "per month",
                 description: "For individual practitioners",
                 features: [
@@ -179,7 +179,7 @@ const Landing = () => {
               },
               {
                 name: "Professional",
-                price: "$79",
+                price: "$499",
                 period: "per month",
                 description: "For small practices",
                 features: [
@@ -193,8 +193,8 @@ const Landing = () => {
               },
               {
                 name: "Enterprise",
-                price: "Custom",
-                period: "pricing",
+                price: "$199",
+                period: "per month",
                 description: "For large organizations",
                 features: [
                   "Unlimited recordings",
