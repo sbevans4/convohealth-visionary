@@ -10,6 +10,7 @@ import RecordingHeader from "@/components/voice-recording/RecordingHeader";
 import RecordingControls from "@/components/voice-recording/RecordingControls";
 import ProcessingIndicator from "@/components/voice-recording/ProcessingIndicator";
 import ResultTabs from "@/components/voice-recording/ResultTabs";
+import { ApiKeyManager } from "@/components/voice-recording/ApiKeyManager";
 import { useRecording, ProcessingPhase } from "@/hooks/useRecording";
 
 const VoiceRecording = () => {
@@ -71,21 +72,24 @@ const VoiceRecording = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <RecordingHeader 
-        recordingStatus={recordingStatus}
-        recordingTime={recordingTime}
-        onCopy={() => {
-          if (soapNote) {
-            const soapText = `SUBJECTIVE:\n${soapNote.subjective}\n\nOBJECTIVE:\n${soapNote.objective}\n\nASSESSMENT:\n${soapNote.assessment}\n\nPLAN:\n${soapNote.plan}`;
-            navigator.clipboard.writeText(soapText);
-            toast.success("SOAP note copied to clipboard");
-          }
-        }}
-        onSave={() => {
-          toast.success("SOAP note saved");
-        }}
-      />
+      {/* Header with API Key Manager */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <RecordingHeader 
+          recordingStatus={recordingStatus}
+          recordingTime={recordingTime}
+          onCopy={() => {
+            if (soapNote) {
+              const soapText = `SUBJECTIVE:\n${soapNote.subjective}\n\nOBJECTIVE:\n${soapNote.objective}\n\nASSESSMENT:\n${soapNote.assessment}\n\nPLAN:\n${soapNote.plan}`;
+              navigator.clipboard.writeText(soapText);
+              toast.success("SOAP note copied to clipboard");
+            }
+          }}
+          onSave={() => {
+            toast.success("SOAP note saved");
+          }}
+        />
+        <ApiKeyManager />
+      </div>
 
       {/* Recording Controls */}
       {(recordingStatus === 'idle' || recordingStatus === 'recording') && (

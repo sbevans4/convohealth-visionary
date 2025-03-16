@@ -3,20 +3,33 @@ import { TranscriptSegment } from "@/types/medical";
 import { audioToBase64 } from "@/utils/formatters";
 import { toast } from "sonner";
 
-// Define Google API key - in a production app, this should be stored securely
-// This is a placeholder - you would need to provide your own API key
-const GOOGLE_SPEECH_API_KEY = "YOUR_GOOGLE_API_KEY";
-
 /**
  * Process audio with Google Speech-to-Text API
  */
 export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<TranscriptSegment[]> => {
   try {
+    // Get API key from localStorage
+    let apiKey = null;
+    try {
+      const storedKeys = localStorage.getItem('api_keys');
+      if (storedKeys) {
+        const keys = JSON.parse(storedKeys);
+        apiKey = keys.googleSpeechApiKey;
+      }
+    } catch (error) {
+      console.error("Error retrieving API key from localStorage:", error);
+    }
+    
+    // If no API key, throw error to fall back to mock data
+    if (!apiKey) {
+      throw new Error("No Google Speech API key configured");
+    }
+    
     // Convert audio to base64
     const audioBase64 = await audioToBase64(audioBlob);
     
     // Prepare request to Google Speech-to-Text API
-    const response = await fetch(`https://speech.googleapis.com/v1p1beta1/speech:recognize?key=${GOOGLE_SPEECH_API_KEY}`, {
+    const response = await fetch(`https://speech.googleapis.com/v1p1beta1/speech:recognize?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -80,7 +93,11 @@ export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<Tr
     
   } catch (error) {
     console.error("Error with Google Speech-to-Text:", error);
-    toast.error("Speech-to-text processing failed");
+    if ((error as Error).message.includes("No Google Speech API key configured")) {
+      toast.error("Please configure your Google Speech API key");
+    } else {
+      toast.error("Speech-to-text processing failed");
+    }
     
     // Fall back to mock data
     return simulateTranscriptionProcessing(audioBlob);
