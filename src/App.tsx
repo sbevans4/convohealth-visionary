@@ -3,9 +3,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { lazy, Suspense } from "react";
+import { AuthProvider } from "./contexts/AuthContext";
 
 // Layout
 import MainLayout from "./layouts/MainLayout";
@@ -20,6 +21,23 @@ const ImageAnalysis = lazy(() => import("./pages/ImageAnalysis"));
 const Subscription = lazy(() => import("./pages/Subscription"));
 
 const queryClient = new QueryClient();
+
+// Protected route wrapper
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  
+  // Check if user is logged in with Supabase
+  // For simplicity, we're checking localStorage directly
+  // In a real app, use the useAuth hook from AuthContext
+  const session = localStorage.getItem("supabase.auth.token");
+  
+  if (!session) {
+    // Redirect to the login page if not authenticated
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+  
+  return <>{children}</>;
+};
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -37,22 +55,30 @@ const AnimatedRoutes = () => {
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={
             <Suspense fallback={<LoadingScreen />}>
-              <Dashboard />
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
             </Suspense>
           } />
           <Route path="/medical-documentation" element={
             <Suspense fallback={<LoadingScreen />}>
-              <VoiceRecording />
+              <ProtectedRoute>
+                <VoiceRecording />
+              </ProtectedRoute>
             </Suspense>
           } />
           <Route path="/medical-documentation/image" element={
             <Suspense fallback={<LoadingScreen />}>
-              <ImageAnalysis />
+              <ProtectedRoute>
+                <ImageAnalysis />
+              </ProtectedRoute>
             </Suspense>
           } />
           <Route path="/subscription-plans" element={
             <Suspense fallback={<LoadingScreen />}>
-              <Subscription />
+              <ProtectedRoute>
+                <Subscription />
+              </ProtectedRoute>
             </Suspense>
           } />
         </Route>
@@ -74,13 +100,15 @@ const LoadingScreen = () => (
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AnimatedRoutes />
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
