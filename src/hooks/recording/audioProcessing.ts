@@ -1,3 +1,4 @@
+
 import { TranscriptSegment } from "@/types/medical";
 import { audioToBase64 } from "@/utils/formatters";
 import { toast } from "sonner";
@@ -29,43 +30,39 @@ export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<Tr
 
     console.log("Successfully retrieved API key, calling speech-to-text service");
     
-    // In a real implementation, you would use the API key to call the Google Speech-to-Text API
-    // For example:
-    // const response = await fetch(apiData.endpoint, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Authorization': `Bearer ${apiData.api_key}`,
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     config: {
-    //       encoding: 'WEBM_OPUS',
-    //       sampleRateHertz: 48000,
-    //       languageCode: 'en-US',
-    //       enableAutomaticPunctuation: true,
-    //       model: 'medical_conversation',
-    //     },
-    //     audio: {
-    //       content: audioBase64
-    //     }
-    //   }),
-    // });
-    //
-    // const result = await response.json();
-    // if (response.ok) {
-    //   return transformGoogleResponse(result);
-    // } else {
-    //   throw new Error(`Google API error: ${result.error.message}`);
-    // }
+    // Call the Google Speech-to-Text API with the retrieved key
+    const response = await fetch(apiData.endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiData.api_key}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        config: {
+          encoding: 'WEBM_OPUS',
+          sampleRateHertz: 48000,
+          languageCode: 'en-US',
+          enableAutomaticPunctuation: true,
+          model: 'medical_conversation',
+        },
+        audio: {
+          content: audioBase64
+        }
+      }),
+    });
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    toast.dismiss();
-    toast.success("Audio processed successfully");
-    
-    // For now, return simulated transcription
-    return simulateTranscriptionProcessing(audioBlob);
+    // Process the API response
+    const result = await response.json();
+    if (response.ok) {
+      toast.dismiss();
+      toast.success("Audio processed successfully");
+      
+      // Transform the Google API response into our transcript format
+      return transformGoogleResponse(result);
+    } else {
+      console.error("Google API error:", result.error);
+      throw new Error(`Google API error: ${result.error.message}`);
+    }
     
   } catch (error) {
     console.error("Error with speech-to-text processing:", error);
@@ -75,6 +72,47 @@ export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<Tr
     // Fall back to mock data
     return simulateTranscriptionProcessing(audioBlob);
   }
+};
+
+/**
+ * Transform Google Speech-to-Text API response to our transcript format
+ */
+const transformGoogleResponse = (googleResponse: any): TranscriptSegment[] => {
+  if (!googleResponse?.results) {
+    return [];
+  }
+  
+  const transcript: TranscriptSegment[] = [];
+  let idCounter = 1;
+  let currentTime = 0;
+  
+  googleResponse.results.forEach((result: any) => {
+    if (result.alternatives && result.alternatives.length > 0) {
+      const alternative = result.alternatives[0];
+      const text = alternative.transcript || '';
+      
+      // Simple speaker diarization - alternate between Doctor and Patient
+      // In a real implementation, you'd use Google's speaker diarization
+      const speaker = idCounter % 2 === 0 ? 'Patient' : 'Doctor';
+      
+      // Estimate timing - in a real app, use the word timings from Google
+      const duration = text.split(' ').length * 0.5; // rough estimate: 0.5 seconds per word
+      
+      transcript.push({
+        id: idCounter.toString(),
+        speaker,
+        text,
+        startTime: currentTime,
+        endTime: currentTime + duration,
+        confidence: alternative.confidence || 0.9
+      });
+      
+      currentTime += duration + 0.5; // Add a small gap between segments
+      idCounter++;
+    }
+  });
+  
+  return transcript;
 };
 
 /**
