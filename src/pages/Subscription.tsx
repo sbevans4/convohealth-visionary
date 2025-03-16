@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +12,7 @@ const Subscription = () => {
     {
       id: "basic",
       name: "Basic",
-      price: billingInterval === 'month' ? 29 : 290,
+      price: billingInterval === 'month' ? 99 : 990,
       interval: billingInterval,
       features: [
         "Up to 5 hours of recordings per month",
@@ -25,7 +24,7 @@ const Subscription = () => {
     {
       id: "professional",
       name: "Professional",
-      price: billingInterval === 'month' ? 79 : 790,
+      price: billingInterval === 'month' ? 499 : 4990,
       interval: billingInterval,
       features: [
         "Up to 20 hours of recordings per month",
