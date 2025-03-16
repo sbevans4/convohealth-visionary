@@ -5,4 +5,8 @@
     <string name="title_activity_main">ConvoHealth Visionary</string>
     <string name="package_name">app.lovable.5c493edebbc343deb1d23a7209345528</string>
     <string name="custom_url_scheme">app.lovable.5c493edebbc343deb1d23a7209345528</string>
+    <string name="activity_name">ConvoHealth</string>
+    <string name="private_policy">https://convohealth.app/privacy</string>
+    <string name="capacitor_background_color">#FFFFFF</string>
+    <string name="capacitor_splash_screen_background_color">#FFFFFF</string>
 </resources>
