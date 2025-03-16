@@ -3,16 +3,18 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+export type PaymentMethod = 'card' | 'paypal';
+
 export function useSubscription() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const createCheckout = async (planId: string, interval: 'month' | 'year') => {
+  const createCheckout = async (planId: string, interval: 'month' | 'year', paymentMethod: PaymentMethod = 'card') => {
     try {
       setIsLoading(true);
       
       // Call our Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { planId, interval },
+        body: { planId, interval, paymentMethod },
       });
 
       if (error) {

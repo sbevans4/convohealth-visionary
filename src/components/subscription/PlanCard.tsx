@@ -3,14 +3,16 @@ import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { SubscriptionPlan } from "@/types/medical";
+import { PaymentMethod } from "@/hooks/useSubscription";
 
 interface PlanCardProps {
   plan: SubscriptionPlan;
   isLoading: boolean;
+  paymentMethod: PaymentMethod;
   onSubscribe: (planId: string) => void;
 }
 
-const PlanCard = ({ plan, isLoading, onSubscribe }: PlanCardProps) => {
+const PlanCard = ({ plan, isLoading, paymentMethod, onSubscribe }: PlanCardProps) => {
   return (
     <div className={`relative ${plan.recommended ? 'mt-[-1rem] mb-[-1rem]' : ''}`}>
       <Card className={`h-full flex flex-col ${plan.recommended ? 'border-primary shadow-lg' : ''}`}>
@@ -56,7 +58,9 @@ const PlanCard = ({ plan, isLoading, onSubscribe }: PlanCardProps) => {
                 Processing...
               </>
             ) : (
-              plan.name === "Enterprise" ? "Contact Sales" : "Subscribe Now"
+              plan.name === "Enterprise" ? 
+                "Contact Sales" : 
+                `Subscribe with ${paymentMethod === 'card' ? 'Card' : 'PayPal'}`
             )}
           </Button>
         </CardFooter>

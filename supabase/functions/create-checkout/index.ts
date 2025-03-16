@@ -19,7 +19,7 @@ serve(async (req) => {
   }
 
   try {
-    const { planId, interval } = await req.json();
+    const { planId, interval, paymentMethod } = await req.json();
     
     // Map plan ID and interval to Stripe price IDs
     // Note: These should be replaced with your actual Stripe price IDs from your Stripe dashboard
@@ -48,11 +48,14 @@ serve(async (req) => {
     const successUrl = new URL(req.url).origin + "/dashboard?checkout_success=true";
     const cancelUrl = new URL(req.url).origin + "/subscription?checkout_canceled=true";
 
-    console.log(`Creating checkout session for plan: ${planId}, interval: ${interval}, price ID: ${stripePriceId}`);
+    console.log(`Creating checkout session for plan: ${planId}, interval: ${interval}, payment method: ${paymentMethod}, price ID: ${stripePriceId}`);
     
-    // Create Stripe checkout session with both card and PayPal payment methods
+    // Determine payment method types based on user selection
+    const paymentMethodTypes = paymentMethod === 'paypal' ? ['paypal'] : ['card'];
+    
+    // Create Stripe checkout session with specified payment method
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card", "paypal"],
+      payment_method_types: paymentMethodTypes,
       line_items: [
         {
           price: stripePriceId,

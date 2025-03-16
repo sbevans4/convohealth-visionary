@@ -4,13 +4,15 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { SubscriptionPlan } from "@/types/medical";
-import { useSubscription } from "@/hooks/useSubscription";
+import { useSubscription, PaymentMethod } from "@/hooks/useSubscription";
 import BillingIntervalToggle from "@/components/subscription/BillingIntervalToggle";
 import SubscriptionPlans from "@/components/subscription/SubscriptionPlans";
 import SubscriptionSuccessDialog from "@/components/subscription/SubscriptionSuccessDialog";
+import PaymentMethodSelector from "@/components/subscription/PaymentMethodSelector";
 
 const Subscription = () => {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const { createCheckout, isLoading } = useSubscription();
   const [searchParams] = useSearchParams();
@@ -81,7 +83,7 @@ const Subscription = () => {
     }
     
     // Create checkout session and redirect to Stripe
-    await createCheckout(planId, billingInterval);
+    await createCheckout(planId, billingInterval, paymentMethod);
   };
 
   return (
@@ -105,9 +107,18 @@ const Subscription = () => {
         </div>
       </div>
 
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Select Payment Method</h2>
+        <PaymentMethodSelector 
+          selectedMethod={paymentMethod}
+          onSelectMethod={setPaymentMethod}
+        />
+      </div>
+
       <SubscriptionPlans 
         plans={subscriptionPlans}
         isLoading={isLoading}
+        paymentMethod={paymentMethod}
         onSubscribe={handleSubscribe}
       />
 
