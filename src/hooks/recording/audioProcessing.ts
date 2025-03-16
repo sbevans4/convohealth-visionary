@@ -1,8 +1,6 @@
-
 import { TranscriptSegment } from "@/types/medical";
 import { audioToBase64 } from "@/utils/formatters";
 import { toast } from "sonner";
-import { useApiKeys } from "@/hooks/useApiKeys";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -19,7 +17,7 @@ export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<Tr
     // Fetch API key directly from Supabase
     const { data: apiData, error: apiError } = await supabase
       .from('apis')
-      .select('api_key')
+      .select('api_key, endpoint')
       .eq('name', 'google_speech_api')
       .eq('status', 'active')
       .single();
@@ -33,7 +31,7 @@ export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<Tr
     
     // In a real implementation, you would use the API key to call the Google Speech-to-Text API
     // For example:
-    // const response = await fetch('https://speech.googleapis.com/v1/speech:recognize', {
+    // const response = await fetch(apiData.endpoint, {
     //   method: 'POST',
     //   headers: {
     //     'Authorization': `Bearer ${apiData.api_key}`,

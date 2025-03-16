@@ -67,13 +67,12 @@ export const ApiKeyAdmin = () => {
         // Key doesn't exist, insert new one
         const { error: insertError } = await supabase
           .from('apis')
-          .insert([
-            { 
-              name: 'google_speech_api', 
-              api_key: apiKey, 
-              status: 'active' 
-            }
-          ]);
+          .insert({
+            name: 'google_speech_api', 
+            api_key: apiKey, 
+            status: 'active',
+            endpoint: 'https://speech.googleapis.com/v1/speech:recognize' // Add the required endpoint field
+          });
         
         if (insertError) throw insertError;
         toast.success('API key saved successfully');
