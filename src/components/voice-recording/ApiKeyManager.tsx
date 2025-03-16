@@ -3,8 +3,9 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useApiKeys } from '@/hooks/useApiKeys';
-import { Key, Info, CheckCircle, AlertCircle, Database } from 'lucide-react';
+import { Key, Info, CheckCircle, AlertCircle, Database, Settings } from 'lucide-react';
 import { toast } from 'sonner';
+import { ApiKeyAdmin } from './ApiKeyAdmin';
 
 export const ApiKeyManager = () => {
   const { googleSpeechApiKey, isLoading, error } = useApiKeys();
@@ -45,6 +46,14 @@ export const ApiKeyManager = () => {
           <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted p-3 rounded-md">
             <Database className="h-4 w-4 shrink-0" />
             <p>The API keys are securely managed in the Supabase backend and automatically used by the application.</p>
+          </div>
+          
+          <div className="mt-6">
+            <h3 className="text-sm font-medium mb-2 flex items-center gap-1">
+              <Settings className="h-3 w-3" />
+              API Key Management
+            </h3>
+            <ApiKeyAdmin />
           </div>
         </div>
       </DialogContent>
