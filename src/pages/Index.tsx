@@ -1,15 +1,22 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import Landing from './Landing';
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
-  // Redirect to the landing page
+  // Redirect based on authentication status
   useEffect(() => {
-    navigate('/landing', { replace: true });
-  }, [navigate]);
+    if (user) {
+      // If logged in, go to dashboard
+      navigate('/dashboard', { replace: true });
+    } else {
+      // Otherwise, go to landing
+      navigate('/landing', { replace: true });
+    }
+  }, [navigate, user]);
   
   // While redirecting, render the Landing component
   return <Landing />;
