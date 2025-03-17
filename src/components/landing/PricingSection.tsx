@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -100,16 +101,16 @@ const PricingSection = () => {
       period: "per month",
       description: "Perfect for individual practitioners",
       features: [
-        {text: allFeatures[0], included: true},
-        {text: allFeatures[1], included: true},
-        {text: allFeatures[2], included: true},
+        {text: "Voice recording & transcription", included: true},
+        {text: "AI-generated SOAP notes", included: true},
+        {text: "Medical terminology recognition", included: true},
         {text: "5 hours of recordings per month", included: true},
         {text: "7-day storage retention", included: true},
-        {text: allFeatures[4], included: true},
-        {text: allFeatures[5], included: false},
-        {text: allFeatures[6], included: true},
+        {text: "Mobile app access", included: true},
+        {text: "ICD-10 code suggestions", included: false},
+        {text: "HIPAA compliance", included: true},
         {text: "Email support", included: true},
-        {text: allFeatures[8], included: false}
+        {text: "Custom AI model training", included: false}
       ],
       cta: "Start Free Trial"
     },
@@ -119,16 +120,16 @@ const PricingSection = () => {
       period: "per month",
       description: "For small to medium practices",
       features: [
-        {text: allFeatures[0], included: true},
-        {text: allFeatures[1], included: true},
-        {text: allFeatures[2], included: true},
+        {text: "Voice recording & transcription", included: true},
+        {text: "AI-generated SOAP notes", included: true},
+        {text: "Medical terminology recognition", included: true},
         {text: "20 hours of recordings per month", included: true},
         {text: "30-day storage retention", included: true},
-        {text: allFeatures[4], included: true},
-        {text: allFeatures[5], included: true},
-        {text: allFeatures[6], included: true},
+        {text: "Mobile app access", included: true},
+        {text: "ICD-10 code suggestions", included: true},
+        {text: "HIPAA compliance", included: true},
         {text: "Priority support", included: true},
-        {text: allFeatures[8], included: false}
+        {text: "Custom AI model training", included: false}
       ],
       recommended: true,
       cta: "Get Started Today"
@@ -139,16 +140,16 @@ const PricingSection = () => {
       period: "per month",
       description: "For large medical facilities",
       features: [
-        {text: allFeatures[0], included: true},
-        {text: allFeatures[1], included: true},
-        {text: allFeatures[2], included: true},
+        {text: "Voice recording & transcription", included: true},
+        {text: "AI-generated SOAP notes", included: true},
+        {text: "Medical terminology recognition", included: true},
         {text: "Unlimited recordings", included: true},
         {text: "Unlimited storage", included: true},
-        {text: allFeatures[4], included: true},
-        {text: allFeatures[5], included: true},
-        {text: allFeatures[6], included: true},
+        {text: "Mobile app access", included: true},
+        {text: "ICD-10 code suggestions", included: true},
+        {text: "HIPAA compliance", included: true},
         {text: "Dedicated account manager", included: true},
-        {text: allFeatures[8], included: true}
+        {text: "Custom AI model training", included: true}
       ],
       cta: "Contact Sales"
     }
