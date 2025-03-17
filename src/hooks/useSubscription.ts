@@ -1,147 +1,121 @@
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
-
-export type PaymentMethod = 'card' | 'paypal';
-export type SubscriptionTier = 'free' | 'basic' | 'professional' | 'enterprise';
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 // Constants for trial limits
-const TRIAL_DAYS_LIMIT = 15; // 15 day trial
+const TRIAL_DAYS = 15;
 const TRIAL_MINUTES_LIMIT = 60; // 1 hour in minutes
 
+// Local storage keys
+const TRIAL_START_KEY = "ai_doctor_trial_start";
+const RECORDING_MINUTES_KEY = "ai_doctor_recording_minutes";
+
 export function useSubscription() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [trialDaysRemaining, setTrialDaysRemaining] = useState(TRIAL_DAYS_LIMIT);
+  const [trialStartDate, setTrialStartDate] = useState<string | null>(null);
   const [recordingMinutesUsed, setRecordingMinutesUsed] = useState(0);
-  const [trialStartDate, setTrialStartDate] = useState<Date | null>(null);
-  const { user } = useAuth();
-
-  // Initialize or get trial information
+  
+  // Load trial data on initial render
   useEffect(() => {
-    if (!user) return;
-
-    const loadTrialInfo = async () => {
-      // Get trial start date from local storage
-      const storedTrialStart = localStorage.getItem('trialStartDate');
-      
-      if (storedTrialStart) {
-        const startDate = new Date(storedTrialStart);
-        setTrialStartDate(startDate);
-        
-        // Calculate days remaining
-        const today = new Date();
-        const diffTime = Math.abs(today.getTime() - startDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        const remaining = Math.max(0, TRIAL_DAYS_LIMIT - diffDays);
-        setTrialDaysRemaining(remaining);
-      } else {
-        // Start the trial now
-        const today = new Date();
-        localStorage.setItem('trialStartDate', today.toISOString());
-        setTrialStartDate(today);
-        setTrialDaysRemaining(TRIAL_DAYS_LIMIT);
-      }
-      
-      // Get recording minutes used
-      const storedMinutes = localStorage.getItem('recordingMinutesUsed');
-      if (storedMinutes) {
-        setRecordingMinutesUsed(parseFloat(storedMinutes));
-      }
-    };
-    
-    loadTrialInfo();
-  }, [user]);
-
-  // Get the user's current subscription tier
-  const getUserSubscriptionTier = (): SubscriptionTier => {
-    // If not logged in, still provide free tier access
-    if (!user) return 'free';
-    
-    // In a real app, this would check Supabase for subscription status
-    // For now, we'll default everyone to free tier
-    return 'free';
-  };
-
-  // Check if a user can access a certain feature based on their tier
-  const canAccessFeature = (requiredTier: SubscriptionTier): boolean => {
-    const currentTier = getUserSubscriptionTier();
-    
-    // Free tier can access free features
-    if (requiredTier === 'free') return true;
-    
-    // Check if trial is expired either by days or minutes
-    if (trialDaysRemaining <= 0 || recordingMinutesUsed >= TRIAL_MINUTES_LIMIT) {
-      return false;
+    // Get or initialize trial start date
+    const storedTrialStart = localStorage.getItem(TRIAL_START_KEY);
+    if (!storedTrialStart) {
+      const now = new Date().toISOString();
+      localStorage.setItem(TRIAL_START_KEY, now);
+      setTrialStartDate(now);
+    } else {
+      setTrialStartDate(storedTrialStart);
     }
     
-    // In demo mode, allow access to all features during trial period
-    return true;
+    // Get recording minutes used
+    const storedMinutes = localStorage.getItem(RECORDING_MINUTES_KEY);
+    if (storedMinutes) {
+      setRecordingMinutesUsed(parseFloat(storedMinutes));
+    }
+  }, []);
+  
+  // Calculate remaining trial days
+  const calculateTrialDaysRemaining = (): number => {
+    if (!trialStartDate) return TRIAL_DAYS;
+    
+    const trialStartTime = new Date(trialStartDate).getTime();
+    const currentTime = new Date().getTime();
+    const elapsedDays = (currentTime - trialStartTime) / (1000 * 60 * 60 * 24);
+    
+    return Math.max(0, TRIAL_DAYS - Math.floor(elapsedDays));
   };
-
-  // Track recording time usage
-  const trackRecordingUsage = (minutes: number) => {
+  
+  // Check if trial is expired
+  const isTrialExpired = (): boolean => {
+    return calculateTrialDaysRemaining() <= 0 || recordingMinutesUsed >= TRIAL_MINUTES_LIMIT;
+  };
+  
+  // Track recording usage
+  const trackRecordingUsage = (minutes: number): void => {
+    if (isTrialExpired()) {
+      toast.error("Your trial has expired. Please upgrade to continue using this feature.");
+      return;
+    }
+    
     const newTotal = recordingMinutesUsed + minutes;
     setRecordingMinutesUsed(newTotal);
-    localStorage.setItem('recordingMinutesUsed', newTotal.toString());
+    localStorage.setItem(RECORDING_MINUTES_KEY, newTotal.toString());
+    
+    // Check if this recording put the user over the limit
+    if (newTotal >= TRIAL_MINUTES_LIMIT) {
+      toast.warning("You've reached your trial recording limit. Please upgrade to continue using this feature.");
+    } else if (newTotal >= TRIAL_MINUTES_LIMIT * 0.8) {
+      // Warn when approaching limit (80% used)
+      toast.warning(`You've used ${Math.round(newTotal)} minutes of your ${TRIAL_MINUTES_LIMIT} minute trial.`);
+    }
   };
-
-  // Calculate minutes remaining
+  
+  // Reset trial data (for testing)
+  const resetTrialData = (): void => {
+    localStorage.removeItem(TRIAL_START_KEY);
+    localStorage.removeItem(RECORDING_MINUTES_KEY);
+    const now = new Date().toISOString();
+    localStorage.setItem(TRIAL_START_KEY, now);
+    setTrialStartDate(now);
+    setRecordingMinutesUsed(0);
+    toast.success("Trial data has been reset.");
+  };
+  
+  // Get remaining recording minutes
   const getRecordingMinutesRemaining = (): number => {
     return Math.max(0, TRIAL_MINUTES_LIMIT - recordingMinutesUsed);
   };
-
-  // Check if trial has expired
-  const isTrialExpired = (): boolean => {
-    return trialDaysRemaining <= 0 || recordingMinutesUsed >= TRIAL_MINUTES_LIMIT;
-  };
-
-  const createCheckout = async (
-    planId: string, 
-    interval: 'month' | 'year', 
-    paymentMethod: PaymentMethod = 'card',
-    referralCode?: string
-  ) => {
-    try {
-      setIsLoading(true);
-      
-      // Call our Supabase Edge Function
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { planId, interval, paymentMethod, referralCode },
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-      
-      if (data?.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL returned');
-      }
-    } catch (error) {
-      console.error('Failed to create checkout session:', error);
-      toast.error('Failed to process payment. Please try again.');
-      return null;
-    } finally {
-      setIsLoading(false);
+  
+  // Check if user can access a feature based on their current plan
+  const canAccessFeature = (featureName: string): boolean => {
+    if (!isTrialExpired()) {
+      // During active trial, all features are accessible
+      return true;
     }
+    
+    // Once trial expires, nothing is accessible until upgrade
+    return false;
   };
-
+  
+  // Get user's subscription tier
+  const getUserSubscriptionTier = (): "basic" | "professional" | "enterprise" | "free" => {
+    return "free"; // All users start with free tier
+  };
+  
   return {
-    createCheckout,
-    isLoading,
-    getUserSubscriptionTier,
-    canAccessFeature,
-    trialDaysRemaining,
-    recordingMinutesUsed,
-    trialStartDate,
-    trackRecordingUsage,
-    getRecordingMinutesRemaining,
+    // Trial-related functions
+    trialDaysRemaining: calculateTrialDaysRemaining(),
     isTrialExpired,
-    TRIAL_DAYS_LIMIT,
-    TRIAL_MINUTES_LIMIT
+    trialStartDate,
+    resetTrialData,
+    
+    // Recording usage
+    recordingMinutesUsed,
+    getRecordingMinutesRemaining,
+    trackRecordingUsage,
+    TRIAL_MINUTES_LIMIT,
+    
+    // Feature access
+    canAccessFeature,
+    getUserSubscriptionTier,
   };
 }
