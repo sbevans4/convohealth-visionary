@@ -112,16 +112,16 @@ export const rateApp = () => {
 /**
  * Share app with others
  */
-export const shareApp = async (message: string = "Check out ConvoHealth Visionary!") => {
+export const shareApp = async (message: string = "Check out AI Doctor Notes!") => {
   if (!isNative()) return;
   
   try {
     const { Share } = (window as any).Capacitor.Plugins;
     await Share.share({
-      title: "ConvoHealth Visionary",
+      title: "AI Doctor Notes",
       text: message,
       url: "https://play.google.com/store/apps/details?id=app.lovable.5c493edebbc343deb1d23a7209345528",
-      dialogTitle: "Share ConvoHealth Visionary"
+      dialogTitle: "Share AI Doctor Notes"
     });
   } catch (error) {
     console.error('Error sharing app:', error);

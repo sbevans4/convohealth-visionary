@@ -15,4 +15,6 @@
     <string name="internet_permission_reason">Internet access is required to process recordings and generate notes.</string>
     <string name="app_support_email">support@aidoctornotes.app</string>
     <string name="app_version">1.0.0</string>
+    <string name="play_store_short_description">AI-powered medical scribe that generates SOAP notes from doctor-patient conversations.</string>
+    <string name="play_store_full_description">AI Doctor Notes is a revolutionary medical scribe application for healthcare professionals. The app uses artificial intelligence to transform doctor-patient conversations into comprehensive SOAP notes, saving valuable time and improving documentation quality.\n\nKey Features:\n• Voice recording and accurate transcription\n• AI-powered SOAP note generation\n• Medical terminology recognition\n• HIPAA-compliant storage\n• Mobile access for busy practitioners\n• Simple, intuitive interface\n• ICD-10 code suggestions\n\nDesigned by healthcare professionals for healthcare professionals, AI Doctor Notes helps you focus on patient care instead of paperwork.</string>
 </resources>

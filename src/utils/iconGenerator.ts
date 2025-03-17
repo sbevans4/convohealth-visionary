@@ -68,3 +68,38 @@ To set up app icons for Android:
 4. Ensure you've created both standard and adaptive icons for modern Android devices
   `;
 };
+
+/**
+ * This function provides instructions for generating and adding a splash screen
+ */
+export const getSplashScreenInstructions = (): string => {
+  return `
+To set up a splash screen for Android:
+
+1. Create a high-resolution image for your splash screen (at least 1024x1024 pixels)
+2. Create different sizes for different screen densities:
+   - drawable-mdpi: 320x480px
+   - drawable-hdpi: 480x800px
+   - drawable-xhdpi: 720x1280px
+   - drawable-xxhdpi: 960x1600px
+   - drawable-xxxhdpi: 1280x1920px
+
+3. Save these images in the respective folders under android/app/src/main/res/
+4. Update the splash screen configuration in capacitor.config.ts:
+   
+   plugins: {
+     SplashScreen: {
+       launchShowDuration: 2000,
+       launchAutoHide: true,
+       backgroundColor: "#FFFFFF",
+       androidSplashResourceName: "splash",
+       androidScaleType: "CENTER_CROP",
+       showSpinner: true,
+       androidSpinnerStyle: "large",
+       spinnerColor: "#999999",
+     },
+   }
+
+5. For a more advanced setup, consider using @capacitor/splash-screen plugin
+`;
+};
