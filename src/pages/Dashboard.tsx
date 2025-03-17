@@ -62,7 +62,10 @@ const Dashboard = () => {
       className="space-y-8"
     >
       {/* Header */}
-      <DashboardHeader greeting={greeting} />
+      <DashboardHeader 
+        title={`${greeting} 👋`}
+        description="Here's what's happening with your account today."
+      />
 
       {/* Stats Cards */}
       <StatsGrid />

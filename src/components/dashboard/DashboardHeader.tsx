@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import FeedbackButton from '@/components/feedback/FeedbackButton';
 
 interface DashboardHeaderProps {
@@ -21,7 +22,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onBackButtonClick,
   backButtonLabel
 }) => {
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   return (
     <div className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between md:space-y-0 pb-6">
