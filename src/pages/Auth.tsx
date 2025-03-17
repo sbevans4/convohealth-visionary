@@ -10,14 +10,17 @@ import SignupForm, { SignupFormValues } from "@/components/auth/SignupForm";
 import ResetPasswordDialog from "@/components/auth/ResetPasswordDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth as useAuthContext } from "@/contexts/AuthContext";
 import { useAuth } from "@/hooks/useAuth";
+import { LoginFormValues } from "./components/auth/LoginFormFields";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user } = useAuthContext();
+  const { resetSent, handlePasswordReset } = useAuth();
   const [searchParams] = useSearchParams();
   const referralCode = searchParams.get('ref');
   
@@ -53,12 +56,12 @@ const Auth = () => {
     }
   };
   
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: data.email,
+        password: data.password,
       });
 
       if (error) throw error;
@@ -93,6 +96,10 @@ const Auth = () => {
     }
   };
 
+  const handleResetPassword = async (email: string) => {
+    return await handlePasswordReset(email);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -101,7 +108,7 @@ const Auth = () => {
       className="min-h-screen flex items-center justify-center bg-medical-50/50 p-4"
     >
       <Card className="w-full max-w-md border-0 shadow-lg">
-        <AuthHeader />
+        <AuthHeader isLogin={activeTab === "login"} />
         
         {referralCode && (
           <div className="px-6 py-2 bg-green-50 border-y border-green-100 text-center">
@@ -146,6 +153,9 @@ const Auth = () => {
       <ResetPasswordDialog
         open={isResetPasswordOpen}
         onOpenChange={setIsResetPasswordOpen}
+        onSubmit={handleResetPassword}
+        isLoading={isLoading}
+        resetSent={resetSent || false}
       />
     </motion.div>
   );
