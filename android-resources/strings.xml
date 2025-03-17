@@ -1,20 +1,20 @@
 
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AI Doctor Notes</string>
-    <string name="title_activity_main">AI Doctor Notes</string>
+    <string name="app_name">AI Dental Notes</string>
+    <string name="title_activity_main">AI Dental Notes</string>
     <string name="package_name">app.lovable.5c493edebbc343deb1d23a7209345528</string>
     <string name="custom_url_scheme">app.lovable.5c493edebbc343deb1d23a7209345528</string>
-    <string name="activity_name">AI Doctor Notes</string>
-    <string name="private_policy">https://aidoctornotes.app/privacy</string>
+    <string name="activity_name">AI Dental Notes</string>
+    <string name="private_policy">https://aidentalnotes.app/privacy</string>
     <string name="capacitor_background_color">#FFFFFF</string>
     <string name="capacitor_splash_screen_background_color">#FFFFFF</string>
-    <string name="share_app_text">Check out AI Doctor Notes - A revolutionary medical scribe app!</string>
-    <string name="app_description">AI Doctor Notes helps healthcare professionals create SOAP notes from voice recordings.</string>
+    <string name="share_app_text">Check out AI Dental Notes - A revolutionary dental scribe app!</string>
+    <string name="app_description">AI Dental Notes helps dental professionals create SOAP notes from voice recordings.</string>
     <string name="mic_permission_reason">Microphone access is needed to record conversations for transcription.</string>
     <string name="internet_permission_reason">Internet access is required to process recordings and generate notes.</string>
-    <string name="app_support_email">support@aidoctornotes.app</string>
+    <string name="app_support_email">support@aidentalnotes.app</string>
     <string name="app_version">1.0.0</string>
-    <string name="play_store_short_description">AI-powered medical scribe that generates SOAP notes from doctor-patient conversations.</string>
-    <string name="play_store_full_description">AI Doctor Notes is a revolutionary medical scribe application for healthcare professionals. The app uses artificial intelligence to transform doctor-patient conversations into comprehensive SOAP notes, saving valuable time and improving documentation quality.\n\nKey Features:\n• Voice recording and accurate transcription\n• AI-powered SOAP note generation\n• Medical terminology recognition\n• HIPAA-compliant storage\n• Mobile access for busy practitioners\n• Simple, intuitive interface\n• ICD-10 code suggestions\n\nDesigned by healthcare professionals for healthcare professionals, AI Doctor Notes helps you focus on patient care instead of paperwork.</string>
+    <string name="play_store_short_description">AI-powered dental scribe that generates SOAP notes from dentist-patient conversations.</string>
+    <string name="play_store_full_description">AI Dental Notes is a revolutionary dental scribe application for healthcare professionals. The app uses artificial intelligence to transform dentist-patient conversations into comprehensive SOAP notes, saving valuable time and improving documentation quality.\n\nKey Features:\n• Voice recording and accurate transcription\n• AI-powered SOAP note generation\n• Dental terminology recognition\n• HIPAA-compliant storage\n• Mobile access for busy practitioners\n• Simple, intuitive interface\n• ICD-10 code suggestions\n\nDesigned by dental professionals for dental professionals, AI Dental Notes helps you focus on patient care instead of paperwork.</string>
 </resources>
