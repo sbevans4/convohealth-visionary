@@ -116,7 +116,7 @@ const PricingSection = () => {
     },
     {
       name: "Professional",
-      price: "$249",
+      price: "$499",
       period: "per month",
       description: "For small to medium practices",
       features: [
@@ -136,7 +136,7 @@ const PricingSection = () => {
     },
     {
       name: "Enterprise",
-      price: "$999",
+      price: "$1,999",
       period: "per month",
       description: "For large medical facilities",
       features: [

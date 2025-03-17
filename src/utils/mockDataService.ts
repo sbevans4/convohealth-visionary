@@ -1,4 +1,3 @@
-
 import { Recording, SoapNote, UserProfile, SubscriptionPlan } from "@/types/medical";
 
 // Mock recordings data
@@ -69,46 +68,41 @@ const mockSubscriptionPlans: SubscriptionPlan[] = [
   {
     id: "plan-basic",
     name: "Basic",
-    price: 19.99,
+    price: 99,
     interval: "month",
     features: [
-      "50 recordings per month",
-      "Advanced transcription",
-      "AI-generated SOAP notes",
-      "30-day data retention",
-      "Export to PDF/Word"
+      "Up to 5 hours of recordings per month",
+      "Basic SOAP note generation",
+      "7-day storage retention",
+      "Email support"
     ]
   },
   {
-    id: "plan-premium",
-    name: "Premium",
-    price: 49.99,
+    id: "plan-professional",
+    name: "Professional",
+    price: 499,
     interval: "month",
     recommended: true,
     features: [
-      "Unlimited recordings",
-      "High-accuracy transcription",
-      "AI-generated SOAP notes",
-      "Image analysis for medical documents",
-      "EHR integration",
-      "90-day data retention",
+      "Up to 20 hours of recordings per month",
+      "Advanced SOAP note generation",
+      "30-day storage retention",
+      "Medical image analysis",
       "Priority support"
     ]
   },
   {
     id: "plan-enterprise",
     name: "Enterprise",
-    price: 199.99,
+    price: 1999,
     interval: "month",
     features: [
+      "For up to 6 providers",
       "Unlimited recordings",
-      "Highest-accuracy transcription",
-      "Multiple physician accounts",
-      "Advanced analytics dashboard",
-      "Custom EHR integration",
-      "1-year data retention",
-      "Dedicated account manager",
-      "Custom training"
+      "Custom AI model training",
+      "EHR integration",
+      "HIPAA BAA included",
+      "Dedicated account manager"
     ]
   }
 ];
