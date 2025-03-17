@@ -8,6 +8,7 @@ import type { SignupFormValues } from "@/components/auth/SignupForm";
 
 export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const navigate = useNavigate();
 
   // Handle login submission
@@ -70,6 +71,50 @@ export const useAuth = () => {
     }
   };
 
+  // Handle password reset request
+  const handlePasswordReset = async (email: string) => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+      
+      if (error) throw error;
+      
+      setResetSent(true);
+      toast.success("Password reset link sent to your email.");
+      return true;
+    } catch (error: any) {
+      if (error.message.includes("rate limit")) {
+        toast.error("Too many password reset attempts. Please try again later.");
+      } else {
+        toast.error(error.message || "Failed to send password reset email.");
+      }
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Handle password update (after reset)
+  const handleUpdatePassword = async (password: string) => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.updateUser({ password });
+      
+      if (error) throw error;
+      
+      toast.success("Password updated successfully!");
+      navigate("/dashboard");
+      return true;
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update password.");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Handle social login
   const handleGoogleSignIn = async () => {
     try {
@@ -90,8 +135,11 @@ export const useAuth = () => {
 
   return {
     isLoading,
+    resetSent,
     handleLogin,
     handleSignup,
+    handlePasswordReset,
+    handleUpdatePassword,
     handleGoogleSignIn
   };
 };
