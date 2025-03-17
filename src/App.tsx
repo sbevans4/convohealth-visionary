@@ -15,6 +15,7 @@ import TermsOfService from './pages/TermsOfService';
 import HipaaCompliance from './pages/HipaaCompliance';
 import { Toaster } from './components/ui/sonner';
 import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
 
 function App() {
@@ -29,12 +30,14 @@ function App() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/hipaa" element={<HipaaCompliance />} />
           
-          <Route path="/" element={<MainLayout />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="voice-recording" element={<VoiceRecording />} />
-            <Route path="image-analysis" element={<ImageAnalysis />} />
-            <Route path="subscription" element={<Subscription />} />
-            <Route path="about" element={<About />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<MainLayout />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="voice-recording" element={<VoiceRecording />} />
+              <Route path="image-analysis" element={<ImageAnalysis />} />
+              <Route path="subscription" element={<Subscription />} />
+              <Route path="about" element={<About />} />
+            </Route>
           </Route>
           
           <Route path="*" element={<NotFound />} />
