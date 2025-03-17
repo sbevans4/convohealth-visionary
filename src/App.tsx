@@ -1,4 +1,6 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard';
 import VoiceRecording from './pages/VoiceRecording';
@@ -18,11 +20,22 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
 
 import { initializeCleanupScheduler } from "@/hooks/recording/cleanupScheduler";
+import { initMobileApp } from './utils/mobileAdapter';
+import { isPlatform } from './utils/platformUtils';
 
 // Initialize the cleanup scheduler at app startup
 initializeCleanupScheduler();
 
 function App() {
+  // Initialize mobile adaptations on app start
+  useEffect(() => {
+    if (isPlatform('android') || isPlatform('ios')) {
+      initMobileApp().catch(error => {
+        console.error('Failed to initialize mobile app:', error);
+      });
+    }
+  }, []);
+
   return (
     <Router>
       <AuthProvider>
