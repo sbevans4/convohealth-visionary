@@ -25,9 +25,9 @@ const LandingHeader = () => {
       <div className="container mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-lg bg-medical-600 flex items-center justify-center">
-            <span className="text-white text-sm font-bold">CN</span>
+            <span className="text-white text-sm font-bold">AD</span>
           </div>
-          <span className="font-display font-bold text-lg md:text-xl">ConvoNotes</span>
+          <span className="font-display font-bold text-lg md:text-xl">AI Doctor Notes</span>
         </div>
         
         {/* Desktop Navigation */}

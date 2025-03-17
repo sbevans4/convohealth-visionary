@@ -22,7 +22,7 @@ const CtaSection = () => {
                   Ready to transform your documentation workflow?
                 </h2>
                 <p className="text-medical-100 text-lg mb-8">
-                  Join 3,000+ healthcare providers who save hours every day with ConvoNotes.
+                  Join 3,000+ healthcare providers who save hours every day with AI Doctor Notes.
                 </p>
                 <div className="space-y-4">
                   <Button className="bg-white hover:bg-medical-50 text-medical-600 w-full sm:w-auto h-12 px-8 shadow-lg font-medium text-base" asChild>
@@ -47,7 +47,7 @@ const CtaSection = () => {
                 <blockquote className="italic text-medical-50 relative">
                   <span className="text-5xl font-serif absolute -top-4 -left-2 opacity-20">"</span>
                   <p className="relative z-10">
-                    ConvoNotes has completely transformed our practice. I save at least 2 hours of documentation time every day and can focus more on patient care. The accuracy is remarkable.
+                    AI Doctor Notes has completely transformed our practice. I save at least 2 hours of documentation time every day and can focus more on patient care. The accuracy is remarkable.
                   </p>
                 </blockquote>
                 <div className="mt-6 flex items-center">

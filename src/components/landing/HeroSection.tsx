@@ -30,7 +30,7 @@ const HeroSection = () => {
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              ConvoNotes uses AI to create perfect SOAP notes in seconds, 
+              AI Doctor Notes uses AI to create perfect SOAP notes in seconds, 
               <span className="font-medium text-medical-700"> saving you 2+ hours every day</span>.
             </p>
             
