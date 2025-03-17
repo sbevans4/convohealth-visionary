@@ -26,8 +26,13 @@ const Auth = () => {
   const referralCode = searchParams.get('ref');
   
   // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
+  
   if (user) {
-    navigate("/dashboard");
     return null;
   }
 
