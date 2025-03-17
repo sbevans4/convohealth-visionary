@@ -5,7 +5,6 @@ import { Mic, MicOff, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { formatDuration } from "@/utils/formatters";
 
 interface RecordingControlsProps {
   recordingStatus: 'idle' | 'recording' | 'paused' | 'processing' | 'complete';
@@ -24,6 +23,13 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
   onResumeRecording,
   onStopRecording
 }) => {
+  // Format the recording time (seconds) to MM:SS
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -47,7 +53,7 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
           
           <div className="relative mb-8">
             {recordingStatus === 'recording' && (
-              <div className="absolute inset-0 rounded-full bg-red-500/20 animate-pulse-soft"></div>
+              <div className="absolute inset-0 rounded-full bg-red-500/20 animate-pulse"></div>
             )}
             <div 
               className={cn(
@@ -56,11 +62,11 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
                   ? "border-red-500 bg-red-50"
                   : recordingStatus === 'paused'
                     ? "border-amber-500 bg-amber-50"
-                    : "border-medical-500 bg-medical-50"
+                    : "border-blue-500 bg-blue-50"
               )}
             >
               {recordingStatus === 'idle' && (
-                <Mic className="h-10 w-10 text-medical-600" />
+                <Mic className="h-10 w-10 text-blue-600" />
               )}
               {recordingStatus === 'recording' && (
                 <MicOff className="h-10 w-10 text-red-600" />
@@ -73,7 +79,7 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
           
           {recordingStatus !== 'idle' && (
             <div className="text-3xl font-mono font-semibold mb-8 tracking-widest">
-              {formatDuration(recordingTime)}
+              {formatTime(recordingTime)}
             </div>
           )}
           

@@ -1,12 +1,11 @@
-
 /**
  * Formats seconds into MM:SS format
  */
-export function formatDuration(seconds: number): string {
+export const formatDuration = (seconds: number): string => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
 
 /**
  * Formats a date object into a human-readable string
@@ -22,15 +21,14 @@ export function formatDate(date: Date): string {
 /**
  * Formats a date object into a date and time string
  */
-export function formatDateTime(date: Date): string {
-  return date.toLocaleDateString('en-US', {
+export const formatDateTime = (date: Date): string => {
+  return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  });
-}
+  }).format(date);
+};
 
 /**
  * Converts an audio blob to base64 string
@@ -51,4 +49,3 @@ export async function audioToBase64(blob: Blob): Promise<string> {
     reader.readAsDataURL(blob);
   });
 }
-

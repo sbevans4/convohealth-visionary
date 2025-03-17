@@ -1,24 +1,19 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { RefreshCw, Send, Clock, AlertTriangle } from "lucide-react";
+import { RefreshCw, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { SoapNote } from "@/types/medical";
-import { Link } from "react-router-dom";
 
 import RecordingHeader from "@/components/voice-recording/RecordingHeader";
 import RecordingControls from "@/components/voice-recording/RecordingControls";
 import ProcessingIndicator from "@/components/voice-recording/ProcessingIndicator";
 import ResultTabs from "@/components/voice-recording/ResultTabs";
-import { ApiKeyManager } from "@/components/voice-recording/ApiKeyManager";
 import { useRecording, ProcessingPhase } from "@/hooks/useRecording";
-import { useSubscription } from "@/hooks/useSubscription";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const VoiceRecording = () => {
   const [activeTab, setActiveTab] = useState("transcript");
-  const { isTrialExpired, trialDaysRemaining, getRecordingMinutesRemaining } = useSubscription();
   
   // Use our custom hook
   const {
@@ -75,52 +70,23 @@ const VoiceRecording = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header with API Status Indicator */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <RecordingHeader 
-          recordingStatus={recordingStatus}
-          recordingTime={recordingTime}
-          onCopy={() => {
-            if (soapNote) {
-              const soapText = `SUBJECTIVE:\n${soapNote.subjective}\n\nOBJECTIVE:\n${soapNote.objective}\n\nASSESSMENT:\n${soapNote.assessment}\n\nPLAN:\n${soapNote.plan}`;
-              navigator.clipboard.writeText(soapText);
-              toast.success("SOAP note copied to clipboard");
-            }
-          }}
-          onSave={() => {
-            toast.success("SOAP note saved");
-          }}
-        />
-        <ApiKeyManager />
-      </div>
-
-      {/* Trial Expired Alert */}
-      {isTrialExpired() && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Trial Expired</AlertTitle>
-          <AlertDescription className="flex flex-col gap-2">
-            <p>Your trial period has ended. Upgrade to continue using AI Doctor Notes.</p>
-            <Button asChild variant="outline" size="sm" className="self-start mt-2">
-              <Link to="/subscription">View Subscription Plans</Link>
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Trial Countdown Alert */}
-      {!isTrialExpired() && (recordingStatus === 'idle' || recordingStatus === 'recording') && (
-        <Alert className="mb-4 bg-blue-50 border-blue-200">
-          <Clock className="h-4 w-4 text-blue-500" />
-          <AlertTitle>Trial Mode</AlertTitle>
-          <AlertDescription>
-            You have {trialDaysRemaining} days and {getRecordingMinutesRemaining().toFixed(1)} minutes of recording remaining in your trial.
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Header */}
+      <RecordingHeader 
+        recordingStatus={recordingStatus}
+        onCopy={() => {
+          if (soapNote) {
+            const soapText = `SUBJECTIVE:\n${soapNote.subjective}\n\nOBJECTIVE:\n${soapNote.objective}\n\nASSESSMENT:\n${soapNote.assessment}\n\nPLAN:\n${soapNote.plan}`;
+            navigator.clipboard.writeText(soapText);
+            toast.success("SOAP note copied to clipboard");
+          }
+        }}
+        onSave={() => {
+          toast.success("SOAP note saved");
+        }}
+      />
 
       {/* Recording Controls */}
-      {!isTrialExpired() && (recordingStatus === 'idle' || recordingStatus === 'recording') && (
+      {(recordingStatus === 'idle' || recordingStatus === 'recording') && (
         <RecordingControls 
           recordingStatus={recordingStatus}
           recordingTime={recordingTime}

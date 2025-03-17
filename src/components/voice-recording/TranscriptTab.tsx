@@ -3,13 +3,19 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { TranscriptSegment } from "@/types/medical";
-import { formatDuration } from "@/utils/formatters";
 
 interface TranscriptTabProps {
   transcript: TranscriptSegment[];
 }
 
 const TranscriptTab: React.FC<TranscriptTabProps> = ({ transcript }) => {
+  // Format the time (seconds) to MM:SS
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <Card className="border shadow-soft">
       <CardContent className="p-6">
@@ -19,7 +25,7 @@ const TranscriptTab: React.FC<TranscriptTabProps> = ({ transcript }) => {
               <div className={cn(
                 "px-3 py-1 rounded-full text-xs font-medium h-fit",
                 segment.speaker === "Doctor" 
-                  ? "bg-medical-100 text-medical-800" 
+                  ? "bg-blue-100 text-blue-800" 
                   : "bg-green-100 text-green-800"
               )}>
                 {segment.speaker}
@@ -27,7 +33,7 @@ const TranscriptTab: React.FC<TranscriptTabProps> = ({ transcript }) => {
               <div className="flex-1">
                 <p className="text-base leading-relaxed">{segment.text}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {formatDuration(segment.startTime)} - {formatDuration(segment.endTime)}
+                  {formatTime(segment.startTime)} - {formatTime(segment.endTime)}
                 </p>
               </div>
             </div>

@@ -40,14 +40,14 @@ const ProcessingIndicator: React.FC<ProcessingIndicatorProps> = ({
     >
       <div className="text-center">
         <div className="flex flex-col items-center">
-          <Loader2 className="h-16 w-16 text-medical-500 animate-spin mb-6" />
+          <Loader2 className="h-16 w-16 text-blue-500 animate-spin mb-6" />
           <h3 className="text-xl font-semibold mb-2">{content.title}</h3>
           <p className="text-muted-foreground mb-8 max-w-md">
             {content.description}
           </p>
-          <div className="h-2 w-64 bg-medical-100 rounded-full overflow-hidden">
+          <div className="h-2 w-64 bg-blue-100 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-medical-500 rounded-full transition-all duration-1000 ease-in-out" 
+              className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-in-out" 
               style={{ width: `${content.progress}%` }}
             ></div>
           </div>
