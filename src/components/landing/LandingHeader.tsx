@@ -18,13 +18,13 @@ const LandingHeader = () => {
           <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Pricing</a>
           <Link to="/auth" className="text-sm font-medium hover:text-primary transition-colors">Log in</Link>
           <Button asChild>
-            <Link to="/auth">Get Started</Link>
+            <Link to="/auth?mode=signup">Get Started</Link>
           </Button>
         </nav>
         
         <div className="md:hidden">
           <Button asChild>
-            <Link to="/auth">Sign Up</Link>
+            <Link to="/auth?mode=signup">Sign Up</Link>
           </Button>
         </div>
       </div>

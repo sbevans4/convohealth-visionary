@@ -17,7 +17,7 @@ const CtaSection = () => {
                   Join thousands of healthcare providers who save hours every day with AI Doctor Notes.
                 </p>
                 <Button className="bg-white text-medical-600 hover:bg-medical-50" size="lg" asChild>
-                  <Link to="/auth">
+                  <Link to="/auth?mode=signup">
                     Start Your Free Trial
                   </Link>
                 </Button>
