@@ -93,7 +93,21 @@ export async function setupApiKeys() {
       .single();
     
     if (lemonFoxError) {
-      console.log("Need to set up LemonFox API key");
+      console.log("Setting up initial LemonFox API key");
+      const { error: insertError } = await supabase
+        .from('apis')
+        .insert({
+          name: 'lemonfox_api',
+          api_key: "JWOW9fkQkG5QxIdAqwRTcpRb3otp1OhE",
+          status: 'active',
+          endpoint: 'https://api.lemonfox.ai/v1/transcribe'
+        });
+      
+      if (insertError) {
+        console.error("Error inserting LemonFox API key:", insertError);
+      } else {
+        console.log("LemonFox API key added to database");
+      }
     } else {
       console.log("LemonFox API key already configured");
     }
