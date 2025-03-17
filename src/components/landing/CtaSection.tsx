@@ -26,7 +26,7 @@ const CtaSection = () => {
                 </p>
                 <div className="space-y-4">
                   <Button className="bg-white hover:bg-medical-50 text-medical-600 w-full sm:w-auto h-12 px-8 shadow-lg font-medium text-base" asChild>
-                    <Link to="/auth?mode=signup" className="inline-flex items-center">
+                    <Link to="/auth?tab=signup" className="inline-flex items-center">
                       Start Your Free Trial
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>

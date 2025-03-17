@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -75,7 +74,7 @@ const PricingPlan = ({
         variant={recommended ? "default" : "outline"} 
         asChild
       >
-        <Link to="/auth">{cta}</Link>
+        <Link to="/auth?tab=signup">{cta}</Link>
       </Button>
     </div>
   </motion.div>

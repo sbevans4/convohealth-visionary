@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardDescription } from "@/components/ui/card";
@@ -17,11 +16,12 @@ import { LoginFormValues } from "@/components/auth/LoginFormFields";
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("login");
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabParam === "signup" ? "signup" : "login");
   const navigate = useNavigate();
   const { user } = useAuthContext();
   const { resetSent, handlePasswordReset } = useAuth();
-  const [searchParams] = useSearchParams();
   const referralCode = searchParams.get('ref');
   
   // Redirect if already logged in

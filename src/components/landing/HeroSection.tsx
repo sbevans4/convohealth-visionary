@@ -36,7 +36,7 @@ const HeroSection = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button size="lg" className="h-14 px-8 text-base font-medium gap-2 shadow-md hover:shadow-lg transition-all" asChild>
-                <Link to="/auth">
+                <Link to="/auth?tab=signup">
                   Start Your Free Trial
                   <ArrowRight className="ml-1 h-5 w-5" />
                 </Link>
