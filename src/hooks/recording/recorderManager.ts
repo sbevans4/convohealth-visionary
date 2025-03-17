@@ -1,6 +1,6 @@
 
 import { TranscriptSegment, SoapNote } from "@/types/medical";
-import { processWithGoogleSpeechToText } from "./audioProcessing";
+import { processWithLemonFoxAPI } from "./audioProcessing";
 import { generateSoapNote } from "@/utils/soapNoteGenerator";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -47,7 +47,7 @@ export const processRecording = async (
     }
     
     const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' });
-    const transcript = await processWithGoogleSpeechToText(audioBlob);
+    const transcript = await processWithLemonFoxAPI(audioBlob);
     
     if (callbacks?.onTranscriptReady) {
       callbacks.onTranscriptReady(transcript);
@@ -85,17 +85,17 @@ export const processRecording = async (
 // Function to check and setup API keys on initialization
 export async function setupApiKeys() {
   try {
-    // Check if we need to setup the Google Speech API key
-    const { data: googleApiData, error: googleApiError } = await supabase
+    // Check if we need to setup the LemonFox API key
+    const { data: lemonFoxData, error: lemonFoxError } = await supabase
       .from('apis')
       .select('id')
-      .eq('name', 'google_speech_api')
+      .eq('name', 'lemonfox_api')
       .single();
     
-    if (googleApiError) {
-      console.log("Need to set up Google Speech API key");
+    if (lemonFoxError) {
+      console.log("Need to set up LemonFox API key");
     } else {
-      console.log("Google Speech API key already configured");
+      console.log("LemonFox API key already configured");
     }
     
     // Check and setup the Deepseek API key

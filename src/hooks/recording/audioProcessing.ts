@@ -2,13 +2,13 @@
 import { TranscriptSegment } from "@/types/medical";
 import { audioToBase64 } from "@/utils/formatters";
 import { toast } from "sonner";
-import { callGoogleSpeechApi, transformGoogleResponse } from "./api/googleSpeechClient";
+import { callLemonFoxApi, transformLemonFoxResponse } from "./api/lemonFoxClient";
 import { simulateTranscriptionProcessing } from "./mocks/mockTranscriptionService";
 
 /**
- * Process audio with Google Speech-to-Text API through Supabase backend
+ * Process audio with LemonFox API through Supabase backend
  */
-export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<TranscriptSegment[]> => {
+export const processWithLemonFoxAPI = async (audioBlob: Blob): Promise<TranscriptSegment[]> => {
   try {
     console.log("Processing audio blob:", audioBlob);
     toast.loading("Processing audio...");
@@ -17,17 +17,17 @@ export const processWithGoogleSpeechToText = async (audioBlob: Blob): Promise<Tr
     const audioBase64 = await audioToBase64(audioBlob);
     
     try {
-      // Call the Google Speech-to-Text API
-      const googleResponse = await callGoogleSpeechApi(audioBase64);
+      // Call the LemonFox API
+      const response = await callLemonFoxApi(audioBase64);
       
       toast.dismiss();
       toast.success("Audio processed successfully");
       
-      // Transform the Google API response into our transcript format
-      return transformGoogleResponse(googleResponse);
+      // Transform the LemonFox API response into our transcript format
+      return transformLemonFoxResponse(response);
       
     } catch (callError) {
-      console.error("Error calling Google Speech API:", callError);
+      console.error("Error calling LemonFox API:", callError);
       toast.dismiss();
       toast.warning("Using simulated transcription. Add an API key in settings.");
       

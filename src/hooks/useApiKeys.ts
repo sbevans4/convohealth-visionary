@@ -3,13 +3,15 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ApiKeys {
-  googleSpeechApiKey: string | null;
+  lemonfoxApiKey: string | null;
+  deepseekApiKey: string | null;
   [key: string]: string | null;
 }
 
 export function useApiKeys() {
   const [apiKeys, setApiKeys] = useState<ApiKeys>({
-    googleSpeechApiKey: null
+    lemonfoxApiKey: null,
+    deepseekApiKey: null
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,13 +35,16 @@ export function useApiKeys() {
         // Process the data into the expected format
         if (data && data.length > 0) {
           const processedKeys: ApiKeys = {
-            googleSpeechApiKey: null
+            lemonfoxApiKey: null,
+            deepseekApiKey: null
           };
           
           // Map API keys to their respective names
           data.forEach(item => {
-            if (item.name === 'google_speech_api') {
-              processedKeys.googleSpeechApiKey = item.api_key;
+            if (item.name === 'lemonfox_api') {
+              processedKeys.lemonfoxApiKey = item.api_key;
+            } else if (item.name === 'deepseek_api') {
+              processedKeys.deepseekApiKey = item.api_key;
             } else {
               // Add any other API keys with their appropriate names
               processedKeys[item.name] = item.api_key;
@@ -63,7 +68,8 @@ export function useApiKeys() {
   }, []);
   
   return {
-    googleSpeechApiKey: apiKeys.googleSpeechApiKey,
+    lemonfoxApiKey: apiKeys.lemonfoxApiKey,
+    deepseekApiKey: apiKeys.deepseekApiKey,
     allApiKeys: apiKeys,
     isLoading,
     error

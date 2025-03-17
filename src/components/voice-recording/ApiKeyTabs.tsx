@@ -4,21 +4,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ApiKeyForm from './ApiKeyForm';
 
 export const ApiKeyTabs = () => {
-  const [activeTab, setActiveTab] = useState("google");
+  const [activeTab, setActiveTab] = useState("lemonfox");
   
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-2 mb-6">
-        <TabsTrigger value="google">Google Speech</TabsTrigger>
+        <TabsTrigger value="lemonfox">LemonFox API</TabsTrigger>
         <TabsTrigger value="deepseek">Deepseek AI</TabsTrigger>
       </TabsList>
       
-      <TabsContent value="google" className="mt-0">
+      <TabsContent value="lemonfox" className="mt-0">
         <ApiKeyForm 
-          keyName="google_speech_api"
-          displayName="Google Speech API Key"
-          endpoint="https://speech.googleapis.com/v1/speech:recognize"
-          description="Configure your Google Speech-to-Text API key for voice transcription"
+          keyName="lemonfox_api"
+          displayName="LemonFox API Key"
+          endpoint="https://api.lemonfox.ai/v1/transcribe"
+          description="Configure your LemonFox API key for voice transcription"
         />
       </TabsContent>
       
