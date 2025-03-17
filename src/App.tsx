@@ -13,6 +13,7 @@ import NotFound from '@/pages/NotFound';
 import MainLayout from '@/layouts/MainLayout';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import HipaaCompliance from '@/pages/HipaaCompliance';
+import TermsOfService from '@/pages/TermsOfService';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/subscription" element={<Subscription />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/hipaa" element={<HipaaCompliance />} />
+          <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
