@@ -20,10 +20,13 @@ export function useSoapNotes() {
       
       if (error) throw error;
       
+      // Convert the database response to our SavedSoapNote type
       return data.map(note => ({
         ...note,
         created_at: new Date(note.created_at),
-        expires_at: new Date(note.expires_at)
+        expires_at: new Date(note.expires_at),
+        // Handle transcript_data conversion - ensure it's a TranscriptSegment[] or null
+        transcript_data: note.transcript_data as unknown as TranscriptSegment[] | null
       })) as SavedSoapNote[];
     },
   });
@@ -38,6 +41,7 @@ export function useSoapNotes() {
     setIsSaving(true);
     
     try {
+      // Convert transcript to JSON for storage
       const { data, error } = await supabase
         .from('soap_notes')
         .insert({
@@ -46,7 +50,7 @@ export function useSoapNotes() {
           objective: soapNote.objective,
           assessment: soapNote.assessment,
           plan: soapNote.plan,
-          transcript_data: transcript,
+          transcript_data: transcript as unknown as any, // Cast to any to satisfy TypeScript
           recording_duration: duration || 0
         })
         .select('*')
@@ -61,10 +65,12 @@ export function useSoapNotes() {
         queryKey: ['soapNotes'],
       });
       
+      // Convert the response to our SavedSoapNote type
       return {
         ...data,
         created_at: new Date(data.created_at),
-        expires_at: new Date(data.expires_at)
+        expires_at: new Date(data.expires_at),
+        transcript_data: data.transcript_data as unknown as TranscriptSegment[] | null
       } as SavedSoapNote;
     } catch (error) {
       console.error('Error saving SOAP note:', error);

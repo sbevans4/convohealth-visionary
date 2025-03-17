@@ -31,10 +31,11 @@ export interface SavedSoapNote {
   objective: string;
   assessment: string;
   plan: string;
-  transcript_data?: TranscriptSegment[];
+  transcript_data?: TranscriptSegment[] | null;
   created_at: Date;
   expires_at: Date;
   recording_duration?: number;
+  user_id?: string;
 }
 
 export interface UserProfile {
