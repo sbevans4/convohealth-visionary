@@ -40,11 +40,17 @@ export default defineConfig(({ mode }) => ({
             '@radix-ui/react-label',
             '@radix-ui/react-toast',
           ],
+          framer: ['framer-motion'],
           recording: [
             '@hooks/recording/audioProcessing',
             '@hooks/recording/recorderManager',
             '@hooks/recording/soapNoteProcessing',
             '@utils/soapNoteGenerator',
+          ],
+          tutorial: [
+            '@components/tutorial/TutorialStep',
+            '@components/tutorial/TutorialOverlay',
+            '@hooks/useTutorial',
           ],
         },
       },

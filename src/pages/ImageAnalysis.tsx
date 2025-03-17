@@ -1,9 +1,13 @@
 
+import { lazy, Suspense, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, ImagePlus, Upload, X } from "lucide-react";
-import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load UI components that aren't needed immediately
+const AnalysisResults = lazy(() => import("@/components/image-analysis/AnalysisResults"));
 
 const ImageAnalysis = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -16,6 +20,13 @@ const ImageAnalysis = () => {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Check file size and type before loading
+      if (file.size > 10 * 1024 * 1024) {
+        // If larger than 10MB
+        alert("File size must be less than 10MB");
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onload = (e) => {
         setSelectedImage(e.target?.result as string);
@@ -86,6 +97,7 @@ const ImageAnalysis = () => {
                     src={selectedImage} 
                     alt="Selected medical image" 
                     className="max-h-[300px] object-contain rounded-md mx-auto border p-2"
+                    loading="lazy" // Lazy load the image
                   />
                 </div>
               ) : (
@@ -147,36 +159,33 @@ const ImageAnalysis = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {analysisResults ? (
+              <Suspense fallback={
                 <div className="space-y-4">
-                  <div>
-                    <h3 className="font-medium text-lg">Findings</h3>
-                    <p className="mt-1 text-muted-foreground">{analysisResults.findings}</p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-medium text-lg">Suggested Codes</h3>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {analysisResults.suggestedCodes.map((code, index) => (
-                        <div key={index} className="bg-primary/10 text-primary px-2 py-1 rounded-md text-sm">
-                          {code}
-                        </div>
-                      ))}
-                    </div>
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-6 w-1/2" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-8 w-16" />
+                    <Skeleton className="h-8 w-16" />
+                    <Skeleton className="h-8 w-16" />
                   </div>
                 </div>
-              ) : (
-                <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                  {isAnalyzing ? (
-                    <div className="flex flex-col items-center">
-                      <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin mb-4"></div>
-                      <p>Processing image...</p>
-                    </div>
-                  ) : (
-                    <p>Upload and analyze an image to see results</p>
-                  )}
-                </div>
-              )}
+              }>
+                {analysisResults ? (
+                  <AnalysisResults results={analysisResults} />
+                ) : (
+                  <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                    {isAnalyzing ? (
+                      <div className="flex flex-col items-center">
+                        <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin mb-4"></div>
+                        <p>Processing image...</p>
+                      </div>
+                    ) : (
+                      <p>Upload and analyze an image to see results</p>
+                    )}
+                  </div>
+                )}
+              </Suspense>
             </CardContent>
           </Card>
         </div>

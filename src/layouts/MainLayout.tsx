@@ -1,11 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import Sidebar from '@/components/layout/Sidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { useTutorial } from '@/hooks/useTutorial';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Lazy load the tutorial component
+const TutorialOverlay = lazy(() => import('@/components/tutorial/TutorialOverlay'));
 
 const MainLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { showTutorial, setShowTutorial } = useTutorial();
 
   return (
     <SidebarProvider>
@@ -37,6 +43,14 @@ const MainLayout = () => {
           </footer>
         </div>
       </div>
+
+      {/* Lazy load the tutorial overlay */}
+      <Suspense fallback={null}>
+        <TutorialOverlay 
+          open={showTutorial} 
+          onClose={() => setShowTutorial(false)} 
+        />
+      </Suspense>
     </SidebarProvider>
   );
 };
