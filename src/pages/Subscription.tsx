@@ -11,6 +11,8 @@ import SubscriptionSuccessDialog from "@/components/subscription/SubscriptionSuc
 import PaymentMethodSelector from "@/components/subscription/PaymentMethodSelector";
 import ReferralSystem from "@/components/subscription/ReferralSystem";
 import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 const Subscription = () => {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
@@ -100,6 +102,15 @@ const Subscription = () => {
       exit={{ opacity: 0 }}
       className="container mx-auto px-4 py-8 max-w-6xl"
     >
+      <Alert className="mb-8 bg-blue-50 border-blue-200">
+        <Info className="h-4 w-4 text-blue-500" />
+        <AlertTitle>Demo Mode Active</AlertTitle>
+        <AlertDescription>
+          In this demo, all features are available without payment. In a production environment, 
+          you would need to subscribe to access premium features.
+        </AlertDescription>
+      </Alert>
+
       <div className="text-center mb-12">
         <h1 className="text-3xl font-bold">Subscription Plans</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
