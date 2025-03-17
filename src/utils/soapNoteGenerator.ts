@@ -1,3 +1,4 @@
+
 import { TranscriptSegment, SoapNote } from "@/types/medical";
 import { generateWithDeepseekAPI } from "@/hooks/recording/soapNoteProcessing";
 import { createFallbackSoapNote } from "@/hooks/recording/soapNoteParser";
@@ -32,44 +33,6 @@ export async function generateSoapNote(transcript: TranscriptSegment[]): Promise
     console.error("Error generating SOAP note, falling back to mock data:", error);
     return createFallbackSoapNote(transcript);
   }
-}
-
-function generateFallbackSoapNote(transcript: TranscriptSegment[]): SoapNote {
-  // Extract any useful information from the transcript
-  const medicalInfo = extractMedicalInfo(transcript);
-  
-  // Build a simple SOAP note from extracted info
-  const subjective = buildSubjectiveFromExtractedInfo(medicalInfo);
-  
-  return {
-    subjective: subjective || "Patient reports experiencing symptoms. Details limited due to connection issues.",
-    objective: "Unable to fully process objective findings. Please review the transcript for details.",
-    assessment: "Assessment generation limited. Please review transcript for clinical decision making.",
-    plan: "Consider reviewing the full transcript and regenerating the note when online."
-  };
-}
-
-function buildSubjectiveFromExtractedInfo(medicalInfo: Record<string, string[]>): string {
-  const parts: string[] = [];
-  
-  // Add pain information
-  if (medicalInfo.pain && medicalInfo.pain.length > 0) {
-    parts.push(`Patient reports pain. ${medicalInfo.pain[0]}`);
-  }
-  
-  // Add headache information
-  if (medicalInfo.headache && medicalInfo.headache.length > 0) {
-    parts.push(`Patient reports headache. ${medicalInfo.headache[0]}`);
-  }
-  
-  // Add remaining relevant information
-  for (const [keyword, sentences] of Object.entries(medicalInfo)) {
-    if (keyword !== 'pain' && keyword !== 'headache' && sentences.length > 0) {
-      parts.push(`Patient mentions ${keyword}: ${sentences[0]}`);
-    }
-  }
-  
-  return parts.join(' ');
 }
 
 // Helper function to extract key medical information from transcript

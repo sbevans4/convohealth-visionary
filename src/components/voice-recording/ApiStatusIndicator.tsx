@@ -21,15 +21,21 @@ const ApiStatusIndicator = ({ isLoading, error }: ApiStatusIndicatorProps) => {
           <p>{error}</p>
         </div>
       ) : (
-        <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-3 rounded-md">
-          <CheckCircle className="h-4 w-4 shrink-0" />
-          <p>LemonFox API is properly configured with key "JWOW9fkQkG5QxIdAqwRTcpRb3otp1OhE" and ready to use.</p>
+        <div className="flex flex-col space-y-3">
+          <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-3 rounded-md">
+            <CheckCircle className="h-4 w-4 shrink-0" />
+            <p>LemonFox API is properly configured with key "JWOW9fkQkG5QxIdAqwRTcpRb3otp1OhE" and ready to use.</p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-3 rounded-md">
+            <CheckCircle className="h-4 w-4 shrink-0" />
+            <p>Deepseek API is configured and ready for generating SOAP notes.</p>
+          </div>
         </div>
       )}
       
       <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted p-3 rounded-md">
         <Database className="h-4 w-4 shrink-0" />
-        <p>The API key is securely stored and automatically used for transcription.</p>
+        <p>API keys are securely stored and automatically used for transcription and SOAP note generation.</p>
       </div>
     </div>
   );
