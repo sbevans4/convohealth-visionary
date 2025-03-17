@@ -80,6 +80,48 @@ export type Database = {
         }
         Relationships: []
       }
+      soap_notes: {
+        Row: {
+          assessment: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          objective: string | null
+          plan: string | null
+          recording_duration: number | null
+          subjective: string | null
+          title: string
+          transcript_data: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          assessment?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          objective?: string | null
+          plan?: string | null
+          recording_duration?: number | null
+          subjective?: string | null
+          title: string
+          transcript_data?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          assessment?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          objective?: string | null
+          plan?: string | null
+          recording_duration?: number | null
+          subjective?: string | null
+          title?: string
+          transcript_data?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string | null
@@ -109,7 +151,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_soap_notes: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

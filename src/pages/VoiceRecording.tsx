@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { RefreshCw, Send } from "lucide-react";
+import { RefreshCw, Send, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { SoapNote } from "@/types/medical";
@@ -10,12 +10,17 @@ import RecordingHeader from "@/components/voice-recording/RecordingHeader";
 import RecordingControls from "@/components/voice-recording/RecordingControls";
 import ProcessingIndicator from "@/components/voice-recording/ProcessingIndicator";
 import ResultTabs from "@/components/voice-recording/ResultTabs";
+import SaveSoapNoteDialog from "@/components/voice-recording/SaveSoapNoteDialog";
 import { useRecording, ProcessingPhase } from "@/hooks/useRecording";
+import { useSoapNotes } from "@/hooks/useSoapNotes";
+import { useNavigate } from "react-router-dom";
 
 const VoiceRecording = () => {
   const [activeTab, setActiveTab] = useState("transcript");
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const navigate = useNavigate();
   
-  // Use our custom hook
+  // Use our custom hooks
   const {
     isRecording, 
     recordingTime, 
@@ -27,6 +32,8 @@ const VoiceRecording = () => {
     stopRecording,
     resetRecording
   } = useRecording();
+  
+  const { saveSoapNote, isSaving } = useSoapNotes();
   
   // Determine the current recording status
   const getRecordingStatus = (): 'idle' | 'recording' | 'paused' | 'processing' | 'complete' => {
@@ -58,6 +65,21 @@ const VoiceRecording = () => {
     }
   };
   
+  // Handle saving the SOAP note
+  const handleSaveSoapNote = async (title: string) => {
+    if (!soapNote || transcript.length === 0) {
+      toast.error("No SOAP note to save");
+      return;
+    }
+    
+    try {
+      await saveSoapNote(soapNote, transcript, title, recordingTime);
+      toast.success("SOAP note saved! It will be available for 7 days.");
+    } catch (error) {
+      console.error("Error saving SOAP note:", error);
+    }
+  };
+  
   // Map processing phase to component props
   const mapPhaseToProps = (phase: ProcessingPhase): 'transcribing' | 'analyzing' | 'generating' => {
     switch(phase) {
@@ -81,7 +103,7 @@ const VoiceRecording = () => {
           }
         }}
         onSave={() => {
-          toast.success("SOAP note saved");
+          setIsSaveDialogOpen(true);
         }}
       />
 
@@ -129,12 +151,29 @@ const VoiceRecording = () => {
             New Recording
           </Button>
           
+          <Button 
+            variant="outline" 
+            onClick={() => setIsSaveDialogOpen(true)}
+            disabled={isSaving}
+          >
+            <Save className="mr-2 h-4 w-4" />
+            Save (7 days)
+          </Button>
+          
           <Button variant="default" onClick={sendSoapNote}>
             <Send className="mr-2 h-4 w-4" />
             Send SOAP Note
           </Button>
         </motion.div>
       )}
+      
+      {/* Save Dialog */}
+      <SaveSoapNoteDialog
+        isOpen={isSaveDialogOpen}
+        onClose={() => setIsSaveDialogOpen(false)}
+        onSave={handleSaveSoapNote}
+        defaultTitle={`Patient Consult - ${new Date().toLocaleDateString()}`}
+      />
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard';
@@ -17,6 +16,11 @@ import { Toaster } from './components/ui/sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
+
+import { initializeCleanupScheduler } from "@/hooks/recording/cleanupScheduler";
+
+// Initialize the cleanup scheduler at app startup
+initializeCleanupScheduler();
 
 function App() {
   return (

@@ -24,6 +24,19 @@ export interface Recording {
   soapNote?: SoapNote;
 }
 
+export interface SavedSoapNote {
+  id: string;
+  title: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  transcript_data?: TranscriptSegment[];
+  created_at: Date;
+  expires_at: Date;
+  recording_duration?: number;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
