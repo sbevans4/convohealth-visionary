@@ -11,7 +11,7 @@ import { simulateTranscriptionProcessing } from "./mocks/mockTranscriptionServic
 export const processWithLemonFoxAPI = async (audioBlob: Blob): Promise<TranscriptSegment[]> => {
   try {
     console.log("Processing audio blob:", audioBlob);
-    toast.loading("Processing audio...");
+    toast.loading("Processing audio with LemonFox API...");
     
     // Convert audio to base64 for transmission
     const audioBase64 = await audioToBase64(audioBlob);
@@ -21,7 +21,7 @@ export const processWithLemonFoxAPI = async (audioBlob: Blob): Promise<Transcrip
       const response = await callLemonFoxApi(audioBase64);
       
       toast.dismiss();
-      toast.success("Audio processed successfully");
+      toast.success("Audio processed successfully with LemonFox API");
       
       // Transform the LemonFox API response into our transcript format
       return transformLemonFoxResponse(response);
@@ -29,7 +29,7 @@ export const processWithLemonFoxAPI = async (audioBlob: Blob): Promise<Transcrip
     } catch (callError) {
       console.error("Error calling LemonFox API:", callError);
       toast.dismiss();
-      toast.warning("Using simulated transcription. Add an API key in settings.");
+      toast.error("LemonFox API error. Using simulated transcription instead.");
       
       // Fall back to mock data
       return simulateTranscriptionProcessing(audioBlob);
