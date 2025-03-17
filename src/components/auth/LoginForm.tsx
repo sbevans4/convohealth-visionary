@@ -21,10 +21,16 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 
-// Form validation schema
+// Form validation schema with more detailed error messages
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address (e.g., doctor@example.com)"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(6, "Password must be at least 6 characters"),
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
@@ -48,6 +54,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
       email: "",
       password: "",
     },
+    mode: "onChange", // Enable real-time validation as user types
   });
 
   return (
@@ -68,9 +75,10 @@ const LoginForm: React.FC<LoginFormProps> = ({
                       placeholder="doctor@example.com" 
                       className="pl-9"
                       type="email"
+                      aria-describedby="email-validation"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage id="email-validation" />
                 </div>
               </FormItem>
             )}
@@ -101,9 +109,10 @@ const LoginForm: React.FC<LoginFormProps> = ({
                       {...field}
                       type="password" 
                       className="pl-9"
+                      aria-describedby="password-validation"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage id="password-validation" />
                 </div>
               </FormItem>
             )}
@@ -114,7 +123,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={isLoading}
+            disabled={isLoading || !form.formState.isValid}
           >
             {isLoading ? (
               <>

@@ -24,7 +24,14 @@ export const useAuth = () => {
       toast.success("Successfully signed in!");
       navigate("/dashboard");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in");
+      // More user-friendly error messages
+      if (error.message.includes("Invalid login credentials")) {
+        toast.error("Incorrect email or password. Please try again.");
+      } else if (error.message.includes("Email not confirmed")) {
+        toast.error("Please verify your email address before signing in.");
+      } else {
+        toast.error(error.message || "Failed to sign in");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -49,7 +56,14 @@ export const useAuth = () => {
       toast.success("Account created successfully! Please check your email to confirm your account.");
       return true;
     } catch (error: any) {
-      toast.error(error.message || "Failed to create account");
+      // More specific error messages for signup
+      if (error.message.includes("User already registered")) {
+        toast.error("An account with this email already exists. Try signing in instead.");
+      } else if (error.message.includes("rate limit")) {
+        toast.error("Too many attempts. Please try again later.");
+      } else {
+        toast.error(error.message || "Failed to create account");
+      }
       return false;
     } finally {
       setIsLoading(false);

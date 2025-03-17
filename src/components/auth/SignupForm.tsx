@@ -19,11 +19,23 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 
-// Form validation schema
+// Enhanced form validation schema with more detailed error messages
 const signupSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address (e.g., doctor@example.com)"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(6, "Password must be at least 6 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  fullName: z
+    .string()
+    .min(1, "Full name is required")
+    .min(2, "Name must be at least 2 characters")
+    .regex(/^[a-zA-Z\s.]+$/, "Name should only contain letters, spaces, and periods"),
 });
 
 export type SignupFormValues = z.infer<typeof signupSchema>;
@@ -48,6 +60,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
       password: "",
       fullName: "",
     },
+    mode: "onChange", // Enable real-time validation as user types
   });
 
   return (
@@ -67,9 +80,10 @@ const SignupForm: React.FC<SignupFormProps> = ({
                       {...field}
                       placeholder="Dr. John Smith" 
                       className="pl-9"
+                      aria-describedby="fullname-validation"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage id="fullname-validation" />
                 </div>
               </FormItem>
             )}
@@ -89,9 +103,10 @@ const SignupForm: React.FC<SignupFormProps> = ({
                       placeholder="doctor@example.com" 
                       className="pl-9"
                       type="email"
+                      aria-describedby="email-validation"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage id="email-validation" />
                 </div>
               </FormItem>
             )}
@@ -110,9 +125,10 @@ const SignupForm: React.FC<SignupFormProps> = ({
                       {...field}
                       type="password" 
                       className="pl-9"
+                      aria-describedby="password-validation"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage id="password-validation" />
                 </div>
               </FormItem>
             )}
@@ -123,7 +139,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={isLoading}
+            disabled={isLoading || !form.formState.isValid}
           >
             {isLoading ? (
               <>
