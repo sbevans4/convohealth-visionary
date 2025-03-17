@@ -12,15 +12,30 @@ import PaymentMethodSelector from "@/components/subscription/PaymentMethodSelect
 import ReferralSystem from "@/components/subscription/ReferralSystem";
 import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import { Info, Clock, AlertTriangle } from "lucide-react";
+import { formatDate } from "@/utils/formatters";
 
 const Subscription = () => {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const { createCheckout, isLoading } = useSubscription();
+  const { 
+    createCheckout, 
+    isLoading, 
+    isTrialExpired, 
+    trialDaysRemaining, 
+    recordingMinutesUsed, 
+    TRIAL_MINUTES_LIMIT,
+    trialStartDate
+  } = useSubscription();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
+  
+  // Calculate trial end date
+  const trialEndDate = trialStartDate ? new Date(trialStartDate) : new Date();
+  if (trialStartDate) {
+    trialEndDate.setDate(trialEndDate.getDate() + 15);
+  }
   
   useEffect(() => {
     // Check URL for query parameters
@@ -102,14 +117,24 @@ const Subscription = () => {
       exit={{ opacity: 0 }}
       className="container mx-auto px-4 py-8 max-w-6xl"
     >
-      <Alert className="mb-8 bg-blue-50 border-blue-200">
-        <Info className="h-4 w-4 text-blue-500" />
-        <AlertTitle>Demo Mode Active</AlertTitle>
-        <AlertDescription>
-          In this demo, all features are available without payment. In a production environment, 
-          you would need to subscribe to access premium features.
-        </AlertDescription>
-      </Alert>
+      {isTrialExpired() ? (
+        <Alert className="mb-8 bg-red-50 border-red-200">
+          <AlertTriangle className="h-4 w-4 text-red-500" />
+          <AlertTitle>Trial Expired</AlertTitle>
+          <AlertDescription>
+            Your trial period has ended. Please select a subscription plan below to continue using AI Doctor Notes.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Alert className="mb-8 bg-blue-50 border-blue-200">
+          <Clock className="h-4 w-4 text-blue-500" />
+          <AlertTitle>Trial Mode Active</AlertTitle>
+          <AlertDescription>
+            You have {trialDaysRemaining} days remaining in your trial (expires {formatDate(trialEndDate)}). 
+            You've used {recordingMinutesUsed.toFixed(1)} of {TRIAL_MINUTES_LIMIT} available recording minutes.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="text-center mb-12">
         <h1 className="text-3xl font-bold">Subscription Plans</h1>

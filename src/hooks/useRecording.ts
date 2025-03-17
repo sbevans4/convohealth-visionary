@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { TranscriptSegment, SoapNote } from "@/types/medical";
 import { RecordingState, ProcessingPhase, UseRecordingOptions } from "./recording/types";
 import { createRecorder, stopRecorder, processRecording, RecorderState } from "./recording/recorderManager";
+import { useSubscription } from "@/hooks/useSubscription";
+import { toast } from "sonner";
 
 export type { ProcessingPhase } from "./recording/types";
 
@@ -16,6 +18,7 @@ export function useRecording(options?: UseRecordingOptions) {
   const recorderStateRef = useRef<RecorderState | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
+  const { canAccessFeature, trackRecordingUsage, isTrialExpired } = useSubscription();
 
   const resetRecording = () => {
     setRecordingTime(0);
@@ -44,6 +47,12 @@ export function useRecording(options?: UseRecordingOptions) {
 
   const startRecording = async () => {
     try {
+      // Check if trial is expired
+      if (isTrialExpired()) {
+        toast.error("Your trial has expired. Please upgrade to continue using this feature.");
+        return;
+      }
+      
       resetRecording();
       
       // Create the recorder
@@ -63,6 +72,10 @@ export function useRecording(options?: UseRecordingOptions) {
       mediaRecorder.onstop = async () => {
         try {
           setIsProcessing(true);
+          
+          // Track recording usage (convert seconds to minutes)
+          const recordingMinutes = recordingTime / 60;
+          trackRecordingUsage(recordingMinutes);
           
           // Process the recording
           const result = await processRecording(
