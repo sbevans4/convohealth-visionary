@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import type { LoginFormValues } from "@/components/auth/LoginForm";
+import type { LoginFormValues } from "@/components/auth/LoginFormFields";
 import type { SignupFormValues } from "@/components/auth/SignupForm";
 
 export const useAuth = () => {
