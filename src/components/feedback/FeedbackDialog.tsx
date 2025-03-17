@@ -19,7 +19,7 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({ isOpen, onClose }) => {
           </DialogDescription>
         </DialogHeader>
         
-        <FeedbackForm onSuccess={onClose} />
+        <FeedbackForm onSubmitSuccess={onClose} />
       </DialogContent>
     </Dialog>
   );
