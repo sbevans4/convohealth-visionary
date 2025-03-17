@@ -31,6 +31,9 @@ const resetSchema = z.object({
     .email("Please enter a valid email address"),
 });
 
+// Define type based on schema
+type ResetFormValues = z.infer<typeof resetSchema>;
+
 interface ResetPasswordDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -46,7 +49,8 @@ const ResetPasswordDialog: React.FC<ResetPasswordDialogProps> = ({
   isLoading,
   resetSent,
 }) => {
-  const resetForm = useForm<{ email: string }>({
+  // Use the inferred type from the schema
+  const resetForm = useForm<ResetFormValues>({
     resolver: zodResolver(resetSchema),
     defaultValues: {
       email: "",
@@ -54,7 +58,7 @@ const ResetPasswordDialog: React.FC<ResetPasswordDialogProps> = ({
     mode: "onChange",
   });
   
-  const handleResetSubmit = async (data: { email: string }) => {
+  const handleResetSubmit = async (data: ResetFormValues) => {
     await onSubmit(data.email);
   };
 
