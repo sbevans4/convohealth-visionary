@@ -23,6 +23,9 @@ const config: CapacitorConfig = {
     CapacitorHttp: {
       enabled: true,
     },
+    Permissions: {
+      requestPermissions: ['microphone']
+    }
   },
   android: {
     buildOptions: {

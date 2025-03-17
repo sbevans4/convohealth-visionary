@@ -11,8 +11,8 @@
     <string name="capacitor_splash_screen_background_color">#FFFFFF</string>
     <string name="share_app_text">Check out AI Dental Notes - A revolutionary dental scribe app!</string>
     <string name="app_description">AI Dental Notes helps dental professionals create SOAP notes from voice recordings.</string>
-    <string name="mic_permission_reason">Microphone access is needed to record conversations for transcription.</string>
-    <string name="internet_permission_reason">Internet access is required to process recordings and generate notes.</string>
+    <string name="mic_permission_reason">Microphone access is needed to record dental appointments for transcription.</string>
+    <string name="internet_permission_reason">Internet access is required to process recordings and generate dental notes.</string>
     <string name="app_support_email">support@aidentalnotes.app</string>
     <string name="app_version">1.0.0</string>
     <string name="play_store_short_description">AI-powered dental scribe that generates SOAP notes from dentist-patient conversations.</string>
