@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { createClient } from "@/integrations/supabase/client";
 
 // Constants for trial limits
 const TRIAL_DAYS = 15;
@@ -10,9 +11,13 @@ const TRIAL_MINUTES_LIMIT = 60; // 1 hour in minutes
 const TRIAL_START_KEY = "ai_doctor_trial_start";
 const RECORDING_MINUTES_KEY = "ai_doctor_recording_minutes";
 
+// Payment method type
+export type PaymentMethod = 'card' | 'paypal';
+
 export function useSubscription() {
   const [trialStartDate, setTrialStartDate] = useState<string | null>(null);
   const [recordingMinutesUsed, setRecordingMinutesUsed] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Load trial data on initial render
   useEffect(() => {
@@ -101,6 +106,47 @@ export function useSubscription() {
     return "free"; // All users start with free tier
   };
   
+  // Create checkout session
+  const createCheckout = async (
+    planId: string, 
+    interval: 'month' | 'year', 
+    paymentMethod: PaymentMethod,
+    referralCode?: string
+  ): Promise<void> => {
+    try {
+      setIsLoading(true);
+      
+      // Create Supabase client
+      const supabase = createClient();
+      
+      // Call the create-checkout edge function
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          planId,
+          interval,
+          paymentMethod,
+          referralCode: referralCode || ''
+        }
+      });
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to create checkout session');
+      }
+      
+      // Redirect to Stripe checkout page
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Invalid response from checkout service');
+      }
+    } catch (error) {
+      toast.error(`Checkout error: ${error.message}`);
+      console.error('Checkout error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   return {
     // Trial-related functions
     trialDaysRemaining: calculateTrialDaysRemaining(),
@@ -117,5 +163,10 @@ export function useSubscription() {
     // Feature access
     canAccessFeature,
     getUserSubscriptionTier,
+    
+    // Checkout
+    createCheckout,
+    isLoading
   };
 }
+
