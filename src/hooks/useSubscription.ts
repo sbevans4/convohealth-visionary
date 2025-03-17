@@ -8,13 +8,18 @@ export type PaymentMethod = 'card' | 'paypal';
 export function useSubscription() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const createCheckout = async (planId: string, interval: 'month' | 'year', paymentMethod: PaymentMethod = 'card') => {
+  const createCheckout = async (
+    planId: string, 
+    interval: 'month' | 'year', 
+    paymentMethod: PaymentMethod = 'card',
+    referralCode?: string
+  ) => {
     try {
       setIsLoading(true);
       
       // Call our Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { planId, interval, paymentMethod },
+        body: { planId, interval, paymentMethod, referralCode },
       });
 
       if (error) {

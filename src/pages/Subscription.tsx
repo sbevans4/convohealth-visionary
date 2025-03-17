@@ -9,6 +9,8 @@ import BillingIntervalToggle from "@/components/subscription/BillingIntervalTogg
 import SubscriptionPlans from "@/components/subscription/SubscriptionPlans";
 import SubscriptionSuccessDialog from "@/components/subscription/SubscriptionSuccessDialog";
 import PaymentMethodSelector from "@/components/subscription/PaymentMethodSelector";
+import ReferralSystem from "@/components/subscription/ReferralSystem";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Subscription = () => {
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
@@ -16,6 +18,7 @@ const Subscription = () => {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const { createCheckout, isLoading } = useSubscription();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   
   useEffect(() => {
     // Check URL for query parameters
@@ -83,8 +86,11 @@ const Subscription = () => {
       return;
     }
     
+    // Get referral code from URL if present
+    const referralCode = searchParams.get('ref') || '';
+    
     // Create checkout session and redirect to Stripe
-    await createCheckout(planId, billingInterval, paymentMethod);
+    await createCheckout(planId, billingInterval, paymentMethod, referralCode);
   };
 
   return (
@@ -107,6 +113,8 @@ const Subscription = () => {
           />
         </div>
       </div>
+
+      {user && <ReferralSystem />}
 
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Select Payment Method</h2>

@@ -33,6 +33,8 @@ export interface UserProfile {
   avatar?: string;
   subscriptionTier: 'free' | 'basic' | 'premium' | 'enterprise';
   subscriptionExpiresAt?: Date;
+  referralCode?: string;
+  referralCount?: number;
 }
 
 export interface SubscriptionPlan {
