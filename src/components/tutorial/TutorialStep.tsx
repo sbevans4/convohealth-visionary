@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, ChevronRight, ChevronLeft, X } from 'lucide-react';
 
 export interface TutorialStepProps {
   title: string;
@@ -27,24 +27,36 @@ const TutorialStep: React.FC<TutorialStepProps> = ({
 }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="bg-card text-card-foreground rounded-lg shadow-lg p-6 max-w-md mx-auto"
+      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.98 }}
+      transition={{ duration: 0.2 }}
+      className="bg-card text-card-foreground rounded-lg p-6 max-w-md mx-auto"
     >
-      <div className="flex flex-col items-center">
-        <div className="bg-primary/10 p-4 rounded-full mb-4">
-          <Icon className="h-10 w-10 text-primary" />
+      <div className="absolute top-3 right-3">
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onSkip}>
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <div className="flex flex-col items-center pt-4">
+        <div className="bg-primary/10 p-4 rounded-full mb-5">
+          <Icon className="h-12 w-12 text-primary" />
         </div>
-        <h3 className="text-xl font-bold mb-2">{title}</h3>
-        <p className="text-center text-muted-foreground mb-6">{description}</p>
+        <h3 className="text-xl font-semibold mb-3 text-center">{title}</h3>
+        <p className="text-center text-muted-foreground mb-8 max-w-xs">{description}</p>
         
-        <div className="flex items-center justify-center gap-2 mb-6">
+        <div className="flex items-center justify-center gap-1.5 mb-8 w-full">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <div 
               key={i} 
-              className={`h-2 w-2 rounded-full ${i + 1 <= step ? 'bg-primary' : 'bg-muted'}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i + 1 === step 
+                  ? 'bg-primary w-6' 
+                  : i + 1 < step 
+                    ? 'bg-primary/60 w-4' 
+                    : 'bg-muted w-4'
+              }`}
             />
           ))}
         </div>
@@ -52,18 +64,27 @@ const TutorialStep: React.FC<TutorialStepProps> = ({
         <div className="flex w-full justify-between">
           <Button
             variant="outline"
+            size="sm"
+            className="gap-1"
             onClick={onPrevious}
             disabled={step === 1}
           >
-            Previous
+            <ChevronLeft className="h-4 w-4" />
+            Back
           </Button>
           
-          <Button variant="ghost" onClick={onSkip}>
-            Skip Tutorial
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onSkip} 
+            className="text-muted-foreground hover:text-foreground"
+          >
+            Skip
           </Button>
           
-          <Button onClick={onNext}>
+          <Button size="sm" className="gap-1" onClick={onNext}>
             {step === totalSteps ? 'Finish' : 'Next'}
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

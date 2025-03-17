@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PricingPlanProps {
@@ -10,9 +10,10 @@ interface PricingPlanProps {
   price: string;
   period: string;
   description: string;
-  features: string[];
+  features: Array<{text: string; included: boolean}>;
   recommended?: boolean;
   index: number;
+  cta: string;
 }
 
 const PricingPlan = ({ 
@@ -22,7 +23,8 @@ const PricingPlan = ({
   description, 
   features, 
   recommended = false,
-  index
+  index,
+  cta
 }: PricingPlanProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -30,98 +32,145 @@ const PricingPlan = ({
     transition={{ duration: 0.5, delay: index * 0.1 }}
     viewport={{ once: true }}
     className={cn(
-      "rounded-xl border shadow-soft overflow-hidden bg-card flex flex-col",
-      recommended ? "ring-2 ring-medical-500 scale-105 z-10" : ""
+      "rounded-xl border shadow-md overflow-hidden bg-card flex flex-col relative h-full",
+      recommended ? "ring-2 ring-medical-600 lg:scale-105 z-10" : ""
     )}
   >
     {recommended && (
-      <div className="bg-medical-500 text-white py-1.5 text-sm font-medium">
-        Recommended
+      <div className="bg-medical-600 text-white py-2 text-sm font-medium">
+        Most Popular
       </div>
     )}
     
-    <div className="p-6 flex-grow">
+    <div className="p-6 lg:p-8 flex-grow">
       <h3 className="text-xl font-semibold mb-2">{name}</h3>
       <div className="mb-4">
-        <span className="text-3xl font-bold">{price}</span>
+        <span className="text-4xl font-bold">{price}</span>
         <span className="text-muted-foreground"> {period}</span>
       </div>
       <p className="text-muted-foreground mb-6">{description}</p>
       
       <ul className="space-y-3 mb-6">
         {features.map((feature, i) => (
-          <li key={i} className="flex items-start">
-            <Check className="h-5 w-5 text-medical-600 mr-2 shrink-0" />
-            <span>{feature}</span>
+          <li key={i} className="flex items-start gap-2">
+            {feature.included ? (
+              <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+            ) : (
+              <X className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+            )}
+            <span className={cn(
+              "text-sm",
+              !feature.included && "text-muted-foreground"
+            )}>{feature.text}</span>
           </li>
         ))}
       </ul>
     </div>
     
-    <div className="p-6 border-t">
-      <Button className="w-full" variant={recommended ? "default" : "outline"} asChild>
-        <Link to="/auth">Get Started</Link>
+    <div className="p-6 lg:p-8 border-t">
+      <Button 
+        className={cn("w-full h-12", 
+          recommended ? "bg-medical-600 hover:bg-medical-700" : ""
+        )} 
+        variant={recommended ? "default" : "outline"} 
+        asChild
+      >
+        <Link to="/auth">{cta}</Link>
       </Button>
     </div>
   </motion.div>
 );
 
 const PricingSection = () => {
+  const allFeatures = [
+    "Voice recording & transcription",
+    "AI-generated SOAP notes",
+    "Medical terminology recognition",
+    "EHR integration",
+    "Mobile app access",
+    "ICD-10 code suggestions",
+    "HIPAA compliance",
+    "Priority support",
+    "Custom AI model training"
+  ];
+
   const plans = [
     {
       name: "Basic",
       price: "$99",
       period: "per month",
-      description: "For individual practitioners",
+      description: "Perfect for individual practitioners",
       features: [
-        "Up to 5 hours of recordings per month",
-        "Basic SOAP note generation",
-        "7-day storage retention",
-        "Email support"
-      ]
+        {text: allFeatures[0], included: true},
+        {text: allFeatures[1], included: true},
+        {text: allFeatures[2], included: true},
+        {text: "5 hours of recordings per month", included: true},
+        {text: "7-day storage retention", included: true},
+        {text: allFeatures[4], included: true},
+        {text: allFeatures[5], included: false},
+        {text: allFeatures[6], included: true},
+        {text: "Email support", included: true},
+        {text: allFeatures[8], included: false}
+      ],
+      cta: "Start Free Trial"
     },
     {
       name: "Professional",
-      price: "$499",
+      price: "$249",
       period: "per month",
-      description: "For small practices",
+      description: "For small to medium practices",
       features: [
-        "Up to 20 hours of recordings per month",
-        "Advanced SOAP note generation",
-        "30-day storage retention",
-        "Medical image analysis",
-        "Priority support"
+        {text: allFeatures[0], included: true},
+        {text: allFeatures[1], included: true},
+        {text: allFeatures[2], included: true},
+        {text: "20 hours of recordings per month", included: true},
+        {text: "30-day storage retention", included: true},
+        {text: allFeatures[4], included: true},
+        {text: allFeatures[5], included: true},
+        {text: allFeatures[6], included: true},
+        {text: "Priority support", included: true},
+        {text: allFeatures[8], included: false}
       ],
-      recommended: true
+      recommended: true,
+      cta: "Get Started Today"
     },
     {
       name: "Enterprise",
-      price: "$1999",
+      price: "$999",
       period: "per month",
-      description: "For up to 6 providers",
+      description: "For large medical facilities",
       features: [
-        "Unlimited recordings",
-        "Custom AI model training",
-        "EHR integration",
-        "HIPAA BAA included",
-        "Dedicated account manager"
-      ]
+        {text: allFeatures[0], included: true},
+        {text: allFeatures[1], included: true},
+        {text: allFeatures[2], included: true},
+        {text: "Unlimited recordings", included: true},
+        {text: "Unlimited storage", included: true},
+        {text: allFeatures[4], included: true},
+        {text: allFeatures[5], included: true},
+        {text: allFeatures[6], included: true},
+        {text: "Dedicated account manager", included: true},
+        {text: allFeatures[8], included: true}
+      ],
+      cta: "Contact Sales"
     }
   ];
 
   return (
-    <section id="pricing" className="py-16 md:py-24 bg-medical-50">
+    <section id="pricing" className="py-20 md:py-28 bg-medical-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-display font-semibold mb-4">
-            Simple, Transparent Pricing
+          <div className="inline-block px-4 py-1.5 rounded-full bg-medical-100/60 text-medical-800 text-sm font-medium mb-4">
+            Simple Pricing
+          </div>
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-6">
+            Choose the Right Plan for Your Practice
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Choose the plan that works best for your practice, with no hidden fees or long-term commitments.
+            All plans include a 14-day free trial. No credit card required to start.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
             <PricingPlan
               key={index}
@@ -132,8 +181,15 @@ const PricingSection = () => {
               features={plan.features}
               recommended={plan.recommended}
               index={index}
+              cta={plan.cta}
             />
           ))}
+        </div>
+        
+        <div className="mt-12 text-center">
+          <p className="text-muted-foreground">
+            Need a custom solution? <a href="#contact" className="text-medical-600 font-medium hover:underline">Contact our sales team</a>
+          </p>
         </div>
       </div>
     </section>

@@ -4,13 +4,14 @@ import { AnimatePresence } from 'framer-motion';
 import { 
   Mic, 
   Image, 
-  Home, 
+  LayoutDashboard, 
   CreditCard, 
   Settings,
-  X
+  CheckCircle
 } from 'lucide-react';
 import TutorialStep from './TutorialStep';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useTutorial } from '@/hooks/useTutorial';
 
 interface TutorialOverlayProps {
   open: boolean;
@@ -19,12 +20,13 @@ interface TutorialOverlayProps {
 
 const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ open, onClose }) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const { skipTutorial } = useTutorial();
   
   const tutorialSteps = [
     {
-      title: 'Welcome to AI Doctor Notes',
+      title: 'Welcome to ConvoNotes',
       description: 'Let\'s take a quick tour to help you get started with this powerful medical documentation tool.',
-      icon: Home
+      icon: LayoutDashboard
     },
     {
       title: 'Voice Recording',
@@ -37,14 +39,14 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ open, onClose }) => {
       icon: Image
     },
     {
-      title: 'Subscription Plans',
-      description: 'Choose a plan that fits your needs, from basic to premium with advanced features.',
+      title: 'Subscription Management',
+      description: 'Easily manage your subscription plan and billing information from your account.',
       icon: CreditCard
     },
     {
       title: 'You\'re All Set!',
-      description: 'You can access this tutorial anytime from your account settings. Happy documenting!',
-      icon: Settings
+      description: 'Start using ConvoNotes to save hours on documentation. You can access this tutorial anytime from settings.',
+      icon: CheckCircle
     }
   ];
 
@@ -65,12 +67,12 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ open, onClose }) => {
   };
   
   const handleFinish = () => {
-    localStorage.setItem('tutorialCompleted', 'true');
+    skipTutorial();
     onClose();
   };
   
   const handleSkip = () => {
-    localStorage.setItem('tutorialCompleted', 'true');
+    skipTutorial();
     onClose();
   };
 
@@ -85,17 +87,19 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ open, onClose }) => {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="p-0 max-w-md" hideCloseButton>
         <AnimatePresence mode="wait">
-          <TutorialStep
-            key={currentStep}
-            title={tutorialSteps[currentStep - 1].title}
-            description={tutorialSteps[currentStep - 1].description}
-            icon={tutorialSteps[currentStep - 1].icon}
-            step={currentStep}
-            totalSteps={totalSteps}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-            onSkip={handleSkip}
-          />
+          {open && (
+            <TutorialStep
+              key={currentStep}
+              title={tutorialSteps[currentStep - 1].title}
+              description={tutorialSteps[currentStep - 1].description}
+              icon={tutorialSteps[currentStep - 1].icon}
+              step={currentStep}
+              totalSteps={totalSteps}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              onSkip={handleSkip}
+            />
+          )}
         </AnimatePresence>
       </DialogContent>
     </Dialog>

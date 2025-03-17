@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 interface TutorialHookResult {
   showTutorial: boolean;
@@ -11,6 +12,7 @@ interface TutorialHookResult {
 
 export const useTutorial = (forceShow = false): TutorialHookResult => {
   const [showTutorial, setShowTutorial] = useState(false);
+  const location = useLocation();
   
   useEffect(() => {
     // Check if user is new (tutorial not completed)
@@ -18,12 +20,14 @@ export const useTutorial = (forceShow = false): TutorialHookResult => {
     const isFirstVisit = !tutorialCompleted;
     
     // Show tutorial if it's the first visit or if forced to show
-    if ((isFirstVisit || forceShow) && window.location.pathname !== '/') {
+    // Don't show on landing page or auth pages
+    if ((isFirstVisit || forceShow) && 
+        !location.pathname.match(/^\/(|auth|privacy-policy|terms|hipaa)$/)) {
       // Slight delay to allow the page to load
-      const timer = setTimeout(() => setShowTutorial(true), 1000);
+      const timer = setTimeout(() => setShowTutorial(true), 800);
       return () => clearTimeout(timer);
     }
-  }, [forceShow]);
+  }, [forceShow, location.pathname]);
   
   const resetTutorial = () => {
     localStorage.removeItem('tutorialCompleted');
