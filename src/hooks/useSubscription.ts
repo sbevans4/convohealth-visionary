@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { createClient } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 
 // Constants for trial limits
 const TRIAL_DAYS = 15;
@@ -116,9 +115,7 @@ export function useSubscription() {
     try {
       setIsLoading(true);
       
-      // Create Supabase client
-      const supabase = createClient();
-      
+      // Use the exported supabase client directly
       // Call the create-checkout edge function
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
@@ -169,4 +166,3 @@ export function useSubscription() {
     isLoading
   };
 }
-
