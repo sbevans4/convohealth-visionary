@@ -72,7 +72,7 @@ export const useAuth = () => {
   };
 
   // Handle password reset request
-  const handlePasswordReset = async (email: string) => {
+  const handlePasswordReset = async (email: string): Promise<void> => {
     try {
       setIsLoading(true);
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -83,14 +83,12 @@ export const useAuth = () => {
       
       setResetSent(true);
       toast.success("Password reset link sent to your email.");
-      return true;
     } catch (error: any) {
       if (error.message.includes("rate limit")) {
         toast.error("Too many password reset attempts. Please try again later.");
       } else {
         toast.error(error.message || "Failed to send password reset email.");
       }
-      return false;
     } finally {
       setIsLoading(false);
     }

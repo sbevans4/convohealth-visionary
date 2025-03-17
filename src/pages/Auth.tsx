@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth as useAuthContext } from "@/contexts/AuthContext";
 import { useAuth } from "@/hooks/useAuth";
-import { LoginFormValues } from "./components/auth/LoginFormFields";
+import { LoginFormValues } from "@/components/auth/LoginFormFields";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -96,8 +96,8 @@ const Auth = () => {
     }
   };
 
-  const handleResetPassword = async (email: string) => {
-    return await handlePasswordReset(email);
+  const handleResetPassword = async (email: string): Promise<void> => {
+    await handlePasswordReset(email);
   };
 
   return (

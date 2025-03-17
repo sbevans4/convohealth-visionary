@@ -7,6 +7,7 @@ import ResetPasswordDialog from "./ResetPasswordDialog";
 interface LoginFormProps {
   onSubmit: (data: LoginFormValues) => Promise<void>;
   isLoading: boolean;
+  onForgotPassword: () => void;
   onSwitchToSignup: () => void;
   onGoogleSignIn: () => Promise<void>;
 }
@@ -16,6 +17,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
   isLoading,
   onSwitchToSignup,
   onGoogleSignIn,
+  onForgotPassword,
 }) => {
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const { handlePasswordReset, resetSent } = useAuth();
@@ -31,7 +33,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
         isLoading={isLoading}
         onSwitchToSignup={onSwitchToSignup}
         onGoogleSignIn={onGoogleSignIn}
-        onForgotPassword={() => setResetDialogOpen(true)}
+        onForgotPassword={onForgotPassword}
       />
       
       <ResetPasswordDialog
