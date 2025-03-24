@@ -1,45 +1,31 @@
- ```yaml
- name: Build and Deploy to Hostinger (FTP)
+on:
+  release:
+    types: [created]
 
- on:
-   push:
-     branches:
-       - main  # Trigger on pushes to 'main' (adjust if needed)
-   workflow_dispatch: # Allow manual triggering
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
- jobs:
-   build-and-deploy:
-     runs-on: ubuntu-latest
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-     steps:
-       - name: Checkout code
-         uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
 
-       - name: Set up Node.js
-         uses: actions/setup-node@v3
-         with:
-           node-version: '18' # Or your desired Node.js version
+      - name: Build project
+        run: npm run build
 
-       - name: Install dependencies
-         run: npm install
-
-       - name: Build project
-         run: npm run build
-
-       - name: Upload artifact
-         uses: actions/upload-artifact@v3
-         with:
-           name: dist-files
-           path: dist
-           retention-days: 5
-
-       - name: Deploy to FTP
-         uses: SamKirkland/FTP-Deploy-Action@v4.3.4 # Use a reliable FTP deployment action
-         with:
-           server: 31.170.166.84
-           username: u396802645.aidoctornotes.com
-           password: Wh0said1t#1982
-           local-dir: ./dist/ # Upload the contents of the dist directory
-           server-dir: /public_html # The remote directory
-           delete-removed: true # VERY IMPORTANT: Clean up old files
- ```
+      - name: Deploy to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: "31.170.166.84"
+          username: "u396802645.info"
+          password: "Wh0said1t#1982"
+          local-dir: ./dist/
+          server-dir: ""
+          delete-removed: true
