@@ -35,7 +35,7 @@ dependencies {
     implementation project(':capacitor-android')
 
     // Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:32.7.4')
+    implementation platform('com.google.firebase:firebase-bom:33.12.0')
     
     // Firebase Analytics
     implementation 'com.google.firebase:firebase-analytics-ktx'
