@@ -2,7 +2,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.5c493edebbc343deb1d23a7209345528',
+  appId: 'com.aidoctornotes',
   appName: 'AI Dental Notes',
   webDir: 'dist',
   server: {

@@ -1,0 +1,30 @@
+
+{
+  "project_info": {
+    "project_number": "254909682996",
+    "project_id": "ai-doctor-notes",
+    "storage_bucket": "ai-doctor-notes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:254909682996:android:dce01e2b5dc02b38498161",
+        "android_client_info": {
+          "package_name": "com.aidoctornotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClNPIgtbZg3FQwTE3xttC5mQyiYgJeehk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
