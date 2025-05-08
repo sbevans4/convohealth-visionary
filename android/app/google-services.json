@@ -1,4 +1,3 @@
-
 {
   "project_info": {
     "project_number": "254909682996",
@@ -10,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:254909682996:android:dce01e2b5dc02b38498161",
         "android_client_info": {
-          "package_name": "com.aidoctornotes"
+              "package_name": "com.aidoctornotes"
         }
       },
       "oauth_client": [],

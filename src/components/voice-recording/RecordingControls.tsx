@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { memo, useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Mic, MicOff, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,16 @@ interface RecordingControlsProps {
   onStopRecording: () => void;
 }
 
+// Format the recording time (seconds) to MM:SS - moved outside component to prevent recreation
+const formatTime = (seconds: number): string => {
+  // Handle potential invalid values
+  const validSeconds = isNaN(seconds) ? 0 : Math.max(0, seconds);
+  
+  const minutes = Math.floor(validSeconds / 60);
+  const remainingSeconds = Math.floor(validSeconds % 60);
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
 const RecordingControls: React.FC<RecordingControlsProps> = ({
   recordingStatus,
   recordingTime,
@@ -23,12 +32,71 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
   onResumeRecording,
   onStopRecording
 }) => {
-  // Format the recording time (seconds) to MM:SS
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+  // Keep track of previous time for debugging
+  const prevTimeRef = useRef(recordingTime);
+  
+  // Use local state to ensure updates are reflected in the UI
+  const [displayTime, setDisplayTime] = useState(formatTime(recordingTime));
+  
+  // Internal timer for fallback (in case the external timer fails)
+  const internalTimerRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const [internalTime, setInternalTime] = useState(0);
+  
+  // Update the display time whenever recordingTime changes
+  useEffect(() => {
+    if (recordingTime !== prevTimeRef.current) {
+      console.log(`RecordingControls: Time updated from ${prevTimeRef.current}s to ${recordingTime}s`);
+      prevTimeRef.current = recordingTime;
+    }
+    
+    setDisplayTime(formatTime(recordingTime));
+  }, [recordingTime]);
+  
+  // Start an internal timer as a fallback when recording
+  useEffect(() => {
+    if (recordingStatus === 'recording') {
+      // Clear any existing timer
+      if (internalTimerRef.current) {
+        cancelAnimationFrame(internalTimerRef.current);
+        internalTimerRef.current = null;
+      }
+      
+      // Set starting time
+      startTimeRef.current = Date.now();
+      setInternalTime(recordingTime);
+      
+      // Create update function for animation frame
+      const updateInternalTimer = () => {
+        const elapsed = (Date.now() - startTimeRef.current) / 1000;
+        const newTime = recordingTime + Math.floor(elapsed);
+        
+        if (newTime !== internalTime) {
+          setInternalTime(newTime);
+        }
+        
+        internalTimerRef.current = requestAnimationFrame(updateInternalTimer);
+      };
+      
+      // Start the timer
+      internalTimerRef.current = requestAnimationFrame(updateInternalTimer);
+      
+      // Cleanup function
+      return () => {
+        if (internalTimerRef.current) {
+          cancelAnimationFrame(internalTimerRef.current);
+          internalTimerRef.current = null;
+        }
+      };
+    } else if (internalTimerRef.current) {
+      // Stop the timer if not recording
+      cancelAnimationFrame(internalTimerRef.current);
+      internalTimerRef.current = null;
+    }
+  }, [recordingStatus, recordingTime]);
+  
+  // Determine which time to display
+  const timeToDisplay = recordingTime > 0 ? displayTime : formatTime(internalTime);
 
   return (
     <motion.div
@@ -69,7 +137,7 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
                 <Mic className="h-10 w-10 text-blue-600" />
               )}
               {recordingStatus === 'recording' && (
-                <MicOff className="h-10 w-10 text-red-600" />
+                <Mic className="h-10 w-10 text-red-600" />
               )}
               {recordingStatus === 'paused' && (
                 <Play className="h-10 w-10 text-amber-600" />
@@ -79,48 +147,94 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
           
           {recordingStatus !== 'idle' && (
             <div className="text-3xl font-mono font-semibold mb-8 tracking-widest">
-              {formatTime(recordingTime)}
+              {timeToDisplay}
             </div>
           )}
           
-          <div className="flex items-center gap-4">
-            {recordingStatus === 'idle' && (
-              <Button size="lg" onClick={onStartRecording} className="px-8">
-                <Mic className="mr-2 h-5 w-5" />
-                Start Recording
-              </Button>
-            )}
-            
-            {recordingStatus === 'recording' && (
-              <>
-                <Button size="lg" variant="outline" onClick={onPauseRecording}>
-                  <Pause className="mr-2 h-5 w-5" />
-                  Pause
-                </Button>
-                <Button size="lg" variant="destructive" onClick={onStopRecording}>
-                  <MicOff className="mr-2 h-5 w-5" />
-                  Stop Recording
-                </Button>
-              </>
-            )}
-            
-            {recordingStatus === 'paused' && (
-              <>
-                <Button size="lg" variant="outline" onClick={onResumeRecording}>
-                  <Play className="mr-2 h-5 w-5" />
-                  Resume
-                </Button>
-                <Button size="lg" variant="destructive" onClick={onStopRecording}>
-                  <MicOff className="mr-2 h-5 w-5" />
-                  Stop Recording
-                </Button>
-              </>
-            )}
-          </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
+  {recordingStatus === 'idle' && (
+    <Button 
+      size="lg" 
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onStartRecording();
+      }} 
+      className="px-8 w-full sm:w-auto"
+    >
+      <Mic className="mr-2 h-5 w-5" />
+      Start Recording
+    </Button>
+  )}
+  
+  {recordingStatus === 'recording' && (
+    <>
+      <Button 
+        size="lg" 
+        variant="outline" 
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onPauseRecording();
+        }}
+        className="w-full sm:w-auto"
+      >
+        <Pause className="mr-2 h-5 w-5" />
+        Pause
+      </Button>
+      <Button 
+        size="lg" 
+        variant="destructive" 
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onStopRecording();
+        }}
+        className="w-full sm:w-auto"
+      >
+        <MicOff className="mr-2 h-5 w-5" />
+        Stop Recording
+      </Button>
+    </>
+  )}
+
+  {recordingStatus === 'paused' && (
+    <>
+      <Button 
+        size="lg" 
+        variant="outline" 
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onResumeRecording();
+        }}
+        className="w-full sm:w-auto"
+      >
+        <Play className="mr-2 h-5 w-5" />
+        Resume
+      </Button>
+      <Button 
+        size="lg" 
+        variant="destructive" 
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onStopRecording();
+        }}
+        className="w-full sm:w-auto"
+      >
+        <MicOff className="mr-2 h-5 w-5" />
+        Stop Recording
+      </Button>
+    </>
+  )}
+</div>
+
         </CardContent>
       </Card>
     </motion.div>
   );
 };
 
-export default RecordingControls;
+// Use memo to prevent unnecessary re-renders when other props haven't changed
+export default memo(RecordingControls);

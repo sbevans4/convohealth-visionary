@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   appName: 'AI Dental Notes',
   webDir: 'dist',
   server: {
-    url: 'https://5c493ede-bbc3-43de-b1d2-3a7209345528.lovableproject.com?forceHideBadge=true',
+    url: 'https://convohealth-visionary.lovable.app/',
     cleartext: true
   },
   plugins: {

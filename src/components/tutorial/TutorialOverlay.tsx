@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { 
@@ -85,7 +84,7 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ open, onClose }) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="p-0 max-w-md" hideCloseButton>
+      <DialogContent className="p-0 max-w-md w-full sm:w-auto" hideCloseButton>
         <AnimatePresence mode="wait">
           {open && (
             <TutorialStep

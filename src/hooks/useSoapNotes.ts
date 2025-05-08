@@ -1,8 +1,7 @@
-
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SoapNote, TranscriptSegment, SavedSoapNote } from '@/types/medical';
+import { SoapNote, SavedSoapNote, TranscriptSegment } from '@/types/medical';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -74,7 +73,7 @@ export function useSoapNotes() {
       if (error) throw error;
       
       toast.success('SOAP note saved successfully');
-      
+       
       // Invalidate the query to refetch the data
       queryClient.invalidateQueries({
         queryKey: ['soapNotes', user.id],

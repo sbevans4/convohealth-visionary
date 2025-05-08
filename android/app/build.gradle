@@ -1,20 +1,20 @@
-
-plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-    id 'com.google.gms.google-services'
-}
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 33
+    namespace "com.aidoctornotes"
+    compileSdk 35
+
     defaultConfig {
         applicationId "com.aidoctornotes"
-        minSdkVersion 22
-        targetSdkVersion 33
+        minSdkVersion 23
+        targetSdk 35
         versionCode 1
         versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -25,18 +25,24 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.22"
+
+    // AndroidX
     implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core:1.12.0'
     implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'com.android.support:support-v4:28.0.0'
+
+    // Firebase BoM and Analytics
+    implementation platform('com.google.firebase:firebase-bom:33.12.0')
+    implementation 'com.google.firebase:firebase-analytics'
+
+    // Test
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation project(':capacitor-android')
 
-    // Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:33.12.0')
-    
-    // Firebase Analytics
-    implementation 'com.google.firebase:firebase-analytics'
+    // Capacitor
+    implementation project(':capacitor-android')
 }

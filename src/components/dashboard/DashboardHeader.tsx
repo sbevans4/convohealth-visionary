@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
@@ -25,7 +24,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between md:space-y-0 pb-6">
+    <div className={`flex flex-col space-y-2 ${isMobile ? 'px-4' : ''} md:flex-row md:items-center md:justify-between md:space-y-0 pb-6`}>
       <div className="flex items-center">
         {showBackButton && (
           <Button 
@@ -39,7 +38,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </Button>
         )}
 
-        <div>
+        <div className="text-left">
           <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
           {description && (
             <p className="text-muted-foreground mt-1">{description}</p>

@@ -1,6 +1,23 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@13.2.0";
+
+// Define TypeScript interface for session parameters
+interface CheckoutSessionParams {
+  payment_method_types: string[];
+  line_items: Array<{
+    price: string;
+    quantity: number;
+  }>;
+  mode: string;
+  success_url: string;
+  cancel_url: string;
+  metadata?: {
+    referralCode: string;
+  };
+  discounts?: Array<{
+    coupon: string;
+  }>;
+}
 
 // Initialize Stripe with the secret key from environment
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -22,19 +39,19 @@ serve(async (req) => {
     const { planId, interval, paymentMethod, referralCode } = await req.json();
     
     // Map plan ID and interval to Stripe price IDs
-    // Note: These should be replaced with your actual Stripe price IDs from your Stripe dashboard
+    // Update these with your actual Stripe price IDs
     const priceMap = {
       basic: {
-        month: "price_basic_monthly", // Replace with actual Stripe price ID
-        year: "price_basic_yearly",   // Replace with actual Stripe price ID
+        month: "price_1OuM8aEVAuNpVdbGKUVzGtTj", // Basic monthly price ID
+        year: "price_1OuM8wEVAuNpVdbGcCqyBW3L",  // Basic yearly price ID
       },
       professional: {
-        month: "price_professional_monthly", // Replace with actual Stripe price ID
-        year: "price_professional_yearly",   // Replace with actual Stripe price ID
+        month: "price_1OuM9REVAuNpVdbGvnLExAkJ", // Professional monthly price ID
+        year: "price_1OuM9oEVAuNpVdbGkhZKlgUb",  // Professional yearly price ID
       },
       enterprise: {
-        month: "price_enterprise_monthly", // Replace with actual Stripe price ID
-        year: "price_enterprise_yearly",   // Replace with actual Stripe price ID
+        month: "price_1OuMAIEVAuNpVdbGpZB4YX1Q", // Enterprise monthly price ID
+        year: "price_1OuMAfEVAuNpVdbGMhWuhN7E",  // Enterprise yearly price ID
       },
     };
 
@@ -42,7 +59,13 @@ serve(async (req) => {
     const stripePriceId = priceMap[planId]?.[interval];
     
     if (!stripePriceId) {
-      throw new Error(`Invalid plan (${planId}) or interval (${interval})`);
+      return new Response(
+        JSON.stringify({ error: `Invalid plan (${planId}) or interval (${interval})` }),
+        { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400 
+        }
+      );
     }
     
     const successUrl = new URL(req.url).origin + "/dashboard?checkout_success=true";
@@ -54,7 +77,7 @@ serve(async (req) => {
     const paymentMethodTypes = paymentMethod === 'paypal' ? ['paypal'] : ['card'];
     
     // Define checkout session parameters
-    const sessionParams = {
+    const sessionParams: CheckoutSessionParams = {
       payment_method_types: paymentMethodTypes,
       line_items: [
         {
@@ -87,16 +110,31 @@ serve(async (req) => {
     }
     
     // Create Stripe checkout session with specified parameters
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    try {
+      const session = await stripe.checkout.sessions.create(sessionParams);
 
-    // Return the session ID to the client
-    return new Response(
-      JSON.stringify({ id: session.id, url: session.url }),
-      { 
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200 
-      }
-    );
+      // Return the session ID to the client
+      return new Response(
+        JSON.stringify({ id: session.id, url: session.url }),
+        { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200 
+        }
+      );
+    } catch (stripeError) {
+      console.error("Stripe API error:", stripeError);
+      return new Response(
+        JSON.stringify({ 
+          error: "Stripe API error", 
+          details: stripeError.message,
+          code: stripeError.code || 'unknown' 
+        }),
+        { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500 
+        }
+      );
+    }
   } catch (error) {
     console.error("Error creating checkout session:", error);
     return new Response(

@@ -1,4 +1,3 @@
-
 import { TranscriptSegment } from "@/types/medical";
 import { audioToBase64 } from "@/utils/formatters";
 import { toast } from "sonner";
@@ -10,37 +9,44 @@ import { simulateTranscriptionProcessing } from "./mocks/mockTranscriptionServic
  */
 export const processWithLemonFoxAPI = async (audioBlob: Blob): Promise<TranscriptSegment[]> => {
   try {
-    console.log("Processing audio blob:", audioBlob);
-    toast.loading("Processing audio with LemonFox API...");
-    
-    // Convert audio to base64 for transmission
-    const audioBase64 = await audioToBase64(audioBlob);
-    
-    try {
-      // Call the LemonFox API
-      const response = await callLemonFoxApi(audioBase64);
-      
-      toast.dismiss();
-      toast.success("Audio processed successfully with LemonFox API");
-      
-      // Transform the LemonFox API response into our transcript format
-      return transformLemonFoxResponse(response);
-      
-    } catch (callError) {
-      console.error("Error calling LemonFox API:", callError);
-      toast.dismiss();
-      toast.error("LemonFox API error. Using simulated transcription instead.");
-      
-      // Fall back to mock data
-      return simulateTranscriptionProcessing(audioBlob);
+    // Simple blob validation
+    if (!audioBlob || audioBlob.size === 0) {
+      console.error("Invalid audio blob: Empty or null");
+      toast.error("No audio data to process");
+      return simulateTranscriptionProcessing(new Blob([]));
     }
     
-  } catch (error) {
-    console.error("Error with speech-to-text processing:", error);
-    toast.dismiss();
-    toast.error("Speech-to-text processing failed");
+    console.log(`Processing audio: ${audioBlob.size} bytes`);
+    toast.loading("Processing audio recording...");
     
-    // Fall back to mock data
-    return simulateTranscriptionProcessing(audioBlob);
+    try {
+      // Convert to base64
+      const audioBase64 = await audioToBase64(audioBlob);
+      
+      try {
+        // Call API
+        const response = await callLemonFoxApi(audioBase64);
+        toast.dismiss();
+        toast.success("Processing complete");
+        
+        return transformLemonFoxResponse(response);
+      } catch (error) {
+        console.error("API error:", error);
+        toast.dismiss();
+        toast.error("Transcription error. Using fallback data.");
+        return simulateTranscriptionProcessing(audioBlob);
+      }
+    } catch (error) {
+      console.error("Base64 conversion error:", error);
+      toast.dismiss();
+      toast.error("Audio encoding failed. Using fallback data.");
+      return simulateTranscriptionProcessing(audioBlob);
+    }
+  } catch (error) {
+    // Catch-all for any unexpected errors
+    console.error("Unexpected error:", error);
+    toast.dismiss();
+    toast.error("Processing failed. Using fallback data.");
+    return simulateTranscriptionProcessing(new Blob([]));
   }
 };

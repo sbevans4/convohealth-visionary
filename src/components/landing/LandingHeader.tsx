@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -40,7 +39,7 @@ const LandingHeader = () => {
             <Link to="/auth?mode=signup">Get Started</Link>
           </Button>
         </nav>
-        
+
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center">
           <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>

@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { RefreshCw, Send, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,11 +13,21 @@ import SaveSoapNoteDialog from "@/components/voice-recording/SaveSoapNoteDialog"
 import { useRecording, ProcessingPhase } from "@/hooks/useRecording";
 import { useSoapNotes } from "@/hooks/useSoapNotes";
 import { useNavigate } from "react-router-dom";
+import { setupApiKeys } from "@/hooks/recording/recorderManager";
 
 const VoiceRecording = () => {
   const [activeTab, setActiveTab] = useState("transcript");
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const navigate = useNavigate();
+  
+  // Initialize API keys when component mounts
+  useEffect(() => {
+    // Set up API keys but handle any errors silently
+    setupApiKeys().catch(error => {
+      console.error("Failed to initialize API keys:", error);
+      // This is non-critical so we don't need to show a toast
+    });
+  }, []);
   
   // Use our custom hooks
   const {
@@ -29,8 +38,11 @@ const VoiceRecording = () => {
     processingPhase,
     soapNote,
     startRecording,
+    pauseRecording,
+    resumeRecording,
     stopRecording,
-    resetRecording
+    resetRecording,
+    isPaused
   } = useRecording();
   
   const { saveSoapNote, isSaving } = useSoapNotes();
@@ -38,7 +50,9 @@ const VoiceRecording = () => {
   // Determine the current recording status
   const getRecordingStatus = (): 'idle' | 'recording' | 'paused' | 'processing' | 'complete' => {
     if (isProcessing) return 'processing';
-    if (isRecording) return 'recording';
+    if (isRecording) {
+      return isPaused ? 'paused' : 'recording';
+    }
     if (transcript.length > 0 && soapNote) return 'complete';
     return 'idle';
   };
@@ -91,7 +105,7 @@ const VoiceRecording = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-8 md:py-14">
       {/* Header */}
       <RecordingHeader 
         recordingStatus={recordingStatus}
@@ -108,13 +122,13 @@ const VoiceRecording = () => {
       />
 
       {/* Recording Controls */}
-      {(recordingStatus === 'idle' || recordingStatus === 'recording') && (
+      {(recordingStatus === 'idle' || recordingStatus === 'recording' || recordingStatus === 'paused') && (
         <RecordingControls 
           recordingStatus={recordingStatus}
           recordingTime={recordingTime}
           onStartRecording={startRecording}
-          onPauseRecording={() => {}} // Not implementing pause for simplicity
-          onResumeRecording={() => {}} // Not implementing resume for simplicity
+          onPauseRecording={pauseRecording}
+          onResumeRecording={resumeRecording}
           onStopRecording={stopRecording}
         />
       )}
@@ -144,9 +158,9 @@ const VoiceRecording = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
-          className="flex justify-center gap-4 pb-8"
+          className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 pb-6 sm:pb-8"
         >
-          <Button variant="outline" onClick={resetRecording}>
+          <Button variant="outline" onClick={resetRecording} className="w-full sm:w-auto">
             <RefreshCw className="mr-2 h-4 w-4" />
             New Recording
           </Button>
@@ -155,12 +169,13 @@ const VoiceRecording = () => {
             variant="outline" 
             onClick={() => setIsSaveDialogOpen(true)}
             disabled={isSaving}
+            className="w-full sm:w-auto"
           >
             <Save className="mr-2 h-4 w-4" />
             Save (7 days)
           </Button>
           
-          <Button variant="default" onClick={sendSoapNote}>
+          <Button variant="default" onClick={sendSoapNote} className="w-full sm:w-auto">
             <Send className="mr-2 h-4 w-4" />
             Send SOAP Note
           </Button>

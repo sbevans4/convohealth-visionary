@@ -1,8 +1,9 @@
-
 import { TranscriptSegment, SoapNote } from "@/types/medical";
 import { processWithLemonFoxAPI } from "./audioProcessing";
 import { generateSoapNote } from "@/utils/soapNoteGenerator";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { initializeLemonFoxApi } from './api/lemonFoxClient';
 
 export interface RecorderState {
   mediaRecorder: MediaRecorder;
@@ -17,12 +18,48 @@ export interface ProcessingCallbacks {
 
 export const createRecorder = async (): Promise<RecorderState | null> => {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+    console.log("Requesting audio permission...");
+    
+    // Try to get the best audio quality
+    const audioConstraints = {
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    };
+    
+    const stream = await navigator.mediaDevices.getUserMedia(audioConstraints);
+    console.log("Audio permission granted");
+    
+    // Check which MIME types are supported
+    const mimeTypes = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/ogg;codecs=opus',
+      'audio/mp4'
+    ];
+    
+    let selectedMimeType = '';
+    for (const mimeType of mimeTypes) {
+      if (MediaRecorder.isTypeSupported(mimeType)) {
+        selectedMimeType = mimeType;
+        console.log(`Using supported MIME type: ${selectedMimeType}`);
+        break;
+      }
+    }
+    
+    // Create the MediaRecorder
+    const mediaRecorder = new MediaRecorder(stream, { 
+      mimeType: selectedMimeType || undefined
+    });
+    
+    console.log("MediaRecorder created successfully");
     
     return { mediaRecorder, stream };
   } catch (error) {
     console.error("Error creating media recorder:", error);
+    toast.error("Could not access microphone. Please check permissions.");
     return null;
   }
 };
@@ -46,7 +83,7 @@ export const processRecording = async (
       callbacks.onPhaseChange('transcribing');
     }
     
-    const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' });
+    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
     const transcript = await processWithLemonFoxAPI(audioBlob);
     
     if (callbacks?.onTranscriptReady) {
@@ -83,12 +120,16 @@ export const processRecording = async (
 };
 
 // Function to check and setup API keys on initialization
-export async function setupApiKeys() {
+export const setupApiKeys = async () => {
   try {
+    // First initialize the LemonFox API configuration
+    await initializeLemonFoxApi();
+    
+    // Then continue with the rest of the API setup
     // Check if we need to setup the LemonFox API key
     const { data: lemonFoxData, error: lemonFoxError } = await supabase
       .from('apis')
-      .select('id')
+      .select('id, endpoint')
       .eq('name', 'lemonfox_api')
       .single();
     
@@ -100,7 +141,7 @@ export async function setupApiKeys() {
           name: 'lemonfox_api',
           api_key: "JWOW9fkQkG5QxIdAqwRTcpRb3otp1OhE",
           status: 'active',
-          endpoint: 'https://api.lemonfox.ai/v1/transcribe'
+          endpoint: 'https://api.lemonfox.ai/v1/audio/transcriptions'
         });
       
       if (insertError) {
@@ -110,6 +151,23 @@ export async function setupApiKeys() {
       }
     } else {
       console.log("LemonFox API key already configured");
+      
+      // Check if the endpoint needs to be updated
+      if (lemonFoxData.endpoint === 'https://api.lemonfox.ai/v1/transcribe') {
+        console.log("Updating LemonFox API endpoint to correct URL");
+        const { error: updateError } = await supabase
+          .from('apis')
+          .update({
+            endpoint: 'https://api.lemonfox.ai/v1/audio/transcriptions'
+          })
+          .eq('id', lemonFoxData.id);
+        
+        if (updateError) {
+          console.error("Error updating LemonFox API endpoint:", updateError);
+        } else {
+          console.log("LemonFox API endpoint updated successfully");
+        }
+      }
     }
     
     // Check and setup the Deepseek API key
@@ -141,7 +199,7 @@ export async function setupApiKeys() {
   } catch (err) {
     console.error("Error setting up API keys:", err);
   }
-}
+};
 
-// Initialize API keys on module load
-setupApiKeys().catch(console.error);
+// Don't auto-initialize, let the app explicitly call this
+// setupApiKeys().catch(console.error);

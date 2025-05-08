@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import MainLayout from './layouts/MainLayout';
@@ -6,6 +5,8 @@ import Dashboard from './pages/Dashboard';
 import VoiceRecording from './pages/VoiceRecording';
 import ImageAnalysis from './pages/ImageAnalysis';
 import Subscription from './pages/Subscription';
+import MedicalDocumentation from './pages/MedicalDocumentation';
+import ViewNote from './pages/ViewNote';
 import Index from './pages/Index';
 import Landing from './pages/Landing';
 import Auth from './pages/Auth';
@@ -19,12 +20,17 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import { initializeCleanupScheduler } from "@/hooks/recording/cleanupScheduler";
 import { initMobileApp } from './utils/mobileAdapter';
 import { isPlatform } from './utils/platformUtils';
 
 // Initialize the cleanup scheduler at app startup
 initializeCleanupScheduler();
+
+// Create a client
+const queryClient = new QueryClient();
 
 function App() {
   // Initialize mobile adaptations on app start
@@ -37,32 +43,37 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/landing" element={<Landing />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/hipaa" element={<HipaaCompliance />} />
-          
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<MainLayout />}>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="voice-recording" element={<VoiceRecording />} />
-              <Route path="image-analysis" element={<ImageAnalysis />} />
-              <Route path="subscription" element={<Subscription />} />
-              <Route path="about" element={<About />} />
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/landing" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/hipaa" element={<HipaaCompliance />} />
+            
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<MainLayout />}>
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="voice-recording" element={<VoiceRecording />} />
+                <Route path="image-analysis" element={<ImageAnalysis />} />
+                <Route path="subscription" element={<Subscription />} />
+                <Route path="about" element={<About />} />
+                <Route path="medical-documentation" element={<MedicalDocumentation />} />
+                <Route path="medical-documentation/:id" element={<ViewNote />} />
+                <Route path="view-note/:id" element={<ViewNote />} />
+              </Route>
             </Route>
-          </Route>
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
           
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        
-        <Toaster position="top-right" />
-      </AuthProvider>
-    </Router>
+          <Toaster position="top-right" />
+        </AuthProvider>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

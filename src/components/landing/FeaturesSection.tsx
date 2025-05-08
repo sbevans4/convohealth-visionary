@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { 
   Mic, 
@@ -125,7 +124,7 @@ const FeaturesSection = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <Feature
               key={index}

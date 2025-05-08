@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AI Dental Notes</string>
+    <string name="title_activity_main">AI Dental Notes</string>
+    <string name="package_name">com.aidoctornotes</string>
+    <string name="custom_url_scheme">com.aidoctornotes</string>
+</resources>
