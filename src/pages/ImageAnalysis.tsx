@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +43,9 @@ const ImageAnalysis = () => {
   const [error, setError] = useState<string | null>(null);
   const [imageHistory, setImageHistory] = useState<ImageRecord[]>([]);
   const [isCameraAvailable, setIsCameraAvailable] = useState<boolean | null>(null);
+  const [isSelectingImage, setIsSelectingImage] = useState(false);
+
+  const imageUploadRef = useRef<HTMLDivElement>(null); // Ref to track outside clicks
 
   useEffect(() => {
     const history = loadImageHistory();
@@ -59,6 +62,19 @@ const ImageAnalysis = () => {
     };
 
     checkCamera();
+
+    // Detect outside clicks to disable the image selection when tapping outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (imageUploadRef.current && !imageUploadRef.current.contains(event.target as Node)) {
+        setIsSelectingImage(false); // Disable selection if outside clicked
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -221,10 +237,7 @@ const ImageAnalysis = () => {
                 </div>
               </div>
             ) : (
-              <div
-                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 sm:p-12 text-center cursor-pointer"
-                onClick={() => document.getElementById('image-upload')?.click()}
-              >
+              <div className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 sm:p-12 text-center cursor-pointer">
                 <p className="text-muted-foreground mb-4">No image selected</p>
                 <div className="flex flex-col gap-4">
                   <label className="cursor-pointer">
@@ -235,103 +248,77 @@ const ImageAnalysis = () => {
                       className="hidden"
                       onChange={handleImageUpload}
                     />
-                    <Button variant="outline" className="w-full py-3 text-sm sm:text-base">
+                    <Button
+                      variant="outline"
+                      className="w-full py-3 text-sm sm:text-base"
+                      onClick={() => document.getElementById("image-upload")?.click()} // Trigger file input
+                    >
                       <ImagePlus className="mr-2 h-4 w-4" /> Select Image
                     </Button>
                   </label>
                   {isCameraAvailable === null ? (
                     <Button variant="outline" className="w-full" disabled>
-                      <div className="h-4 w-4 rounded-full border-2 border-gray-400 border-t-transparent animate-spin mr-2"></div>
-                      Checking camera...
-                    </Button>
-                  ) : isCameraAvailable ? (
-                    <Button variant="outline" className="w-full" onClick={handleCameraCapture}>
-                      <Camera className="mr-2 h-4 w-4" /> Use Camera
+                      <div className="h-4 w-4 rounded-full border-2 border-gray-300 animate-spin"></div>
                     </Button>
                   ) : (
-                    <Button variant="outline" className="w-full" disabled>
-                      <Camera className="mr-2 h-4 w-4" /> Camera not available
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleCameraCapture}
+                      disabled={!isCameraAvailable}
+                    >
+                      <Camera className="mr-2 h-4 w-4" /> Capture Image
                     </Button>
                   )}
                 </div>
               </div>
             )}
-
-            {error && (
-              <div className="w-full mt-2 bg-destructive/10 text-destructive p-3 rounded-md flex items-start">
-                <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-                <p className="text-sm">{error}</p>
-              </div>
-            )}
           </CardContent>
-          <CardFooter>
-            <Button onClick={analyzeSelectedImage} disabled={!selectedImage || isAnalyzing} className="w-full">
-              {isAnalyzing ? (
-                <>
-                  <div className="mr-2 h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Upload className="mr-2 h-4 w-4" /> Analyze Image
-                </>
-              )}
+          <CardFooter className="flex flex-col gap-2">
+            <Button
+              onClick={analyzeSelectedImage}
+              variant="default"
+              disabled={!selectedImage || isAnalyzing}
+            >
+              {isAnalyzing ? "Analyzing..." : "Analyze Image"}
             </Button>
           </CardFooter>
         </Card>
 
-        <Card className="h-full">
-          <CardHeader>
-            <CardTitle className="text-lg sm:text-xl">Analysis Results</CardTitle>
-            <CardDescription className="text-sm sm:text-base">
-              AI-powered medical interpretation
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0 px-2 pb-2 sm:px-4 sm:pb-4">
-    <Suspense
-      fallback={
-        <div className="space-y-3 sm:space-y-4">
-          <Skeleton className="h-5 w-3/4 sm:h-6 sm:w-1/2" />
-          <Skeleton className="h-16 w-full sm:h-20" />
-          <Skeleton className="h-5 w-1/2 sm:h-6" />
-          <div className="flex flex-wrap gap-2">
-            <Skeleton className="h-7 w-1/3 min-w-[60px] sm:h-8" />
-            <Skeleton className="h-7 w-1/3 min-w-[60px] sm:h-8" />
-            <Skeleton className="h-7 w-1/3 min-w-[60px] sm:h-8" />
-          </div>
-        </div>
-      }
-    >
-      {analysisResults ? (
-        <AnalysisResults results={analysisResults} />
-      ) : (
-        <div className="min-h-[200px] flex items-center justify-center text-muted-foreground text-center text-xs sm:text-sm px-2 sm:px-4">
-          {isAnalyzing ? (
-            <div className="flex flex-col items-center">
-              <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full border-2 border-primary border-t-transparent animate-spin mb-3" />
-              <p>Processing image...</p>
-            </div>
-          ) : (
-            <p>Upload and analyze an image to see results</p>
-          )}
-        </div>
-      )}
-    </Suspense>
-  </CardContent>
-        </Card>
+        <Suspense fallback={<Skeleton className="w-full h-full max-w-full" />}>
+          {showCamera && <CameraCapture onCapture={handleImageFromCamera} onClose={closeCamera} />}
+        </Suspense>
+
+        {analysisResults && (
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Analysis Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <strong>Findings:</strong>
+                  <p>{analysisResults.findings}</p>
+                </div>
+                <div>
+                  <strong>Suggested Codes:</strong>
+                  <ul>
+                    {analysisResults.suggestedCodes.map(code => (
+                      <li key={code}>{code}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
-      {showCamera && (
-        <Suspense fallback={
-          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4">
-            <div className="bg-white w-full max-w-lg sm:max-w-xl md:max-w-2xl p-6 rounded-lg shadow-lg">
-              <p className="text-center">Loading camera...</p>
-              <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin mt-4 mx-auto"></div>
-            </div>
-          </div>
-        }>
-          <CameraCapture onCapture={handleImageFromCamera} onClose={closeCamera} />
-        </Suspense>
+      {error && (
+        <div className="mt-4 text-red-500">
+          <AlertCircle className="inline-block mr-2" />
+          {error}
+        </div>
       )}
     </motion.div>
   );

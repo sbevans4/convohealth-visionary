@@ -15,7 +15,7 @@ const HipaaCompliance = () => {
       <LandingHeader />
       
       <main className="flex-grow py-8 px-4">
-        <div className="container max-w-4xl mx-auto">
+        <div className="container max-w-4xl mx-auto px-0">
           <Button 
             variant="ghost" 
             className="mb-6" 
