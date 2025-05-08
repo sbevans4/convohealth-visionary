@@ -16,14 +16,19 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
 
   // Check if the device has camera support
   useEffect(() => {
-    // Check if mediaDevices API is supported
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setError('Your browser does not support camera access. Please try a different browser or device.');
       setIsCheckingCamera(false);
       return;
     }
 
-    // Check if any video input devices are available
+    // Ensure the app is served over HTTPS to access the camera
+    if (window.location.protocol !== 'https:') {
+      setError('Camera access requires HTTPS. Please ensure your app is served over HTTPS.');
+      setIsCheckingCamera(false);
+      return;
+    }
+
     const checkCameraAvailability = async () => {
       try {
         setIsCheckingCamera(true);
@@ -54,7 +59,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'environment', // Prefer rear camera on mobile devices
+          facingMode: { exact: 'environment' }, // Prefer rear camera on mobile devices
           width: { ideal: 1280 },
           height: { ideal: 720 }
         },
@@ -166,4 +171,4 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
   );
 };
 
-export default CameraCapture; 
+export default CameraCapture;

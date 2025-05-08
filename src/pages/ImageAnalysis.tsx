@@ -182,7 +182,7 @@ const ImageAnalysis = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="container mx-auto px-4 py-6 sm:py-8"
+      className="container mx-auto px-4 py-6 sm:py-8 lg:px-6 xl:px-12 2xl:px-20"
     >
       <div className="mb-6 sm:mb-8">
         <h1 className="text-xl sm:text-2xl md:text-4xl font-bold">Medical Image Analysis</h1>
@@ -199,7 +199,7 @@ const ImageAnalysis = () => {
         />
       </Suspense>
 
-      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
         <Card className="h-full">
           <CardHeader>
             <CardTitle>Image Upload</CardTitle>
@@ -282,38 +282,42 @@ const ImageAnalysis = () => {
 
         <Card className="h-full">
           <CardHeader>
-            <CardTitle>Analysis Results</CardTitle>
-            <CardDescription>AI-powered medical interpretation</CardDescription>
+            <CardTitle className="text-lg sm:text-xl">Analysis Results</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
+              AI-powered medical interpretation
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Suspense fallback={
-              <div className="space-y-4">
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-6 w-1/2" />
-                <div className="flex gap-2">
-                  <Skeleton className="h-8 w-16" />
-                  <Skeleton className="h-8 w-16" />
-                  <Skeleton className="h-8 w-16" />
-                </div>
-              </div>
-            }>
-              {analysisResults ? (
-                <AnalysisResults results={analysisResults} />
-              ) : (
-                <div className="h-[200px] flex items-center justify-center text-muted-foreground text-center px-4">
-                  {isAnalyzing ? (
-                    <div className="flex flex-col items-center">
-                      <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin mb-4"></div>
-                      <p>Processing image...</p>
-                    </div>
-                  ) : (
-                    <p>Upload and analyze an image to see results</p>
-                  )}
-                </div>
-              )}
-            </Suspense>
-          </CardContent>
+          <CardContent className="p-0 px-2 pb-2 sm:px-4 sm:pb-4">
+    <Suspense
+      fallback={
+        <div className="space-y-3 sm:space-y-4">
+          <Skeleton className="h-5 w-3/4 sm:h-6 sm:w-1/2" />
+          <Skeleton className="h-16 w-full sm:h-20" />
+          <Skeleton className="h-5 w-1/2 sm:h-6" />
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-7 w-1/3 min-w-[60px] sm:h-8" />
+            <Skeleton className="h-7 w-1/3 min-w-[60px] sm:h-8" />
+            <Skeleton className="h-7 w-1/3 min-w-[60px] sm:h-8" />
+          </div>
+        </div>
+      }
+    >
+      {analysisResults ? (
+        <AnalysisResults results={analysisResults} />
+      ) : (
+        <div className="min-h-[200px] flex items-center justify-center text-muted-foreground text-center text-xs sm:text-sm px-2 sm:px-4">
+          {isAnalyzing ? (
+            <div className="flex flex-col items-center">
+              <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full border-2 border-primary border-t-transparent animate-spin mb-3" />
+              <p>Processing image...</p>
+            </div>
+          ) : (
+            <p>Upload and analyze an image to see results</p>
+          )}
+        </div>
+      )}
+    </Suspense>
+  </CardContent>
         </Card>
       </div>
 
