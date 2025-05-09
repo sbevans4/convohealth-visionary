@@ -14,17 +14,17 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
   const [error, setError] = useState<string | null>(null);
   const [isCheckingCamera, setIsCheckingCamera] = useState(true);
 
-  // Check if the device has camera support
   useEffect(() => {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setError('Your browser does not support camera access. Please try a different browser or device.');
+      setError('Your browser does not support camera access.');
       setIsCheckingCamera(false);
       return;
     }
 
-    // Ensure the app is served over HTTPS to access the camera
-    if (window.location.protocol !== 'https:') {
-      setError('Camera access requires HTTPS. Please ensure your app is served over HTTPS.');
+    if (!isLocalhost && window.location.protocol !== 'https:') {
+      setError('Camera access requires HTTPS.');
       setIsCheckingCamera(false);
       return;
     }
@@ -33,19 +33,18 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
       try {
         setIsCheckingCamera(true);
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(device => device.kind === 'videoinput');
-        
-        if (videoDevices.length === 0) {
-          setError('No camera detected on your device. Please connect a camera and try again.');
+        const hasCamera = devices.some(device => device.kind === 'videoinput');
+
+        if (!hasCamera) {
+          setError('No camera found.');
           setIsCheckingCamera(false);
           return;
         }
-        
-        // Camera is available, now try to access it
-        setupCamera();
+
+        await setupCamera();
       } catch (err) {
-        console.error('Error checking camera availability:', err);
-        setError('Failed to check camera availability. Please ensure you have granted the necessary permissions.');
+        console.error('Camera check error:', err);
+        setError('Camera access failed. Please check permissions.');
         setIsCheckingCamera(false);
       }
     };
@@ -55,15 +54,10 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
 
   const setupCamera = async () => {
     let stream: MediaStream | null = null;
-    
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { exact: 'environment' }, // Prefer rear camera on mobile devices
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-        audio: false
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false,
       });
 
       if (videoRef.current) {
@@ -74,55 +68,45 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
         };
       }
     } catch (err) {
-      console.error('Error accessing camera:', err);
-      setError('Could not access the camera. Please ensure you have granted camera permissions.');
+      console.error('Camera setup error:', err);
+      setError('Unable to access camera.');
       setIsCheckingCamera(false);
-      
-      // Make sure to clean up any partial stream
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
+
+      if (stream) stream.getTracks().forEach(track => track.stop());
     }
   };
 
-  // Clean up camera resources when component unmounts
   useEffect(() => {
     return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
+      if (videoRef.current?.srcObject) {
+        (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
       }
     };
   }, []);
 
   const captureImage = () => {
-    if (videoRef.current && canvasRef.current && isCameraReady) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
+    if (!isCameraReady || !videoRef.current || !canvasRef.current) return;
 
-      if (context) {
-        // Set canvas dimensions to match video
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        
-        // Draw the current video frame to the canvas
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // Convert canvas to data URL and pass it back
-        const imageSrc = canvas.toDataURL('image/jpeg', 0.9);
-        onCapture(imageSrc);
-      }
-    }
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    onCapture(imageDataUrl);
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex flex-col items-center justify-center p-4">
       <div className="relative w-full max-w-md">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="absolute top-2 right-2 z-10 bg-black/50 text-white hover:bg-black/70 rounded-full" 
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-2 z-10 bg-black/50 text-white hover:bg-black/70 rounded-full"
           onClick={onClose}
         >
           <X className="h-5 w-5" />
@@ -144,16 +128,14 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
 
         {!error && !isCheckingCamera && (
           <>
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              playsInline 
-              muted 
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
               className="w-full rounded-lg shadow-lg"
             />
-            
             <canvas ref={canvasRef} className="hidden" />
-            
             <div className="mt-4 flex justify-center">
               <Button
                 disabled={!isCameraReady}

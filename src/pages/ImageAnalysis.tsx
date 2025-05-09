@@ -1,5 +1,6 @@
-import { lazy, Suspense, useState, useEffect, useRef } from "react";
+import React, { useRef, useState, useEffect, lazy, Suspense } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,16 +8,15 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import { Camera, ImagePlus, Upload, X, AlertCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 import { analyzeImage } from "@/integrations/imageAnalysisService";
 import {
   loadImageHistory,
   saveImageToHistory,
-  clearImageHistory
+  clearImageHistory,
 } from "@/integrations/imageHistoryService";
 import { checkCameraAvailability } from "@/utils/deviceUtils";
 
@@ -44,8 +44,7 @@ const ImageAnalysis = () => {
   const [imageHistory, setImageHistory] = useState<ImageRecord[]>([]);
   const [isCameraAvailable, setIsCameraAvailable] = useState<boolean | null>(null);
   const [isSelectingImage, setIsSelectingImage] = useState(false);
-
-  const imageUploadRef = useRef<HTMLDivElement>(null); // Ref to track outside clicks
+  const imageUploadRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const history = loadImageHistory();
@@ -63,79 +62,55 @@ const ImageAnalysis = () => {
 
     checkCamera();
 
-    // Detect outside clicks to disable the image selection when tapping outside
     const handleClickOutside = (event: MouseEvent) => {
       if (imageUploadRef.current && !imageUploadRef.current.contains(event.target as Node)) {
-        setIsSelectingImage(false); // Disable selection if outside clicked
+        setIsSelectingImage(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("File size must be less than 10MB");
-        return;
-      }
-
-      if (!file.type.startsWith('image/')) {
-        toast.error("Please select an image file");
-        return;
-      }
+      if (file.size > 10 * 1024 * 1024) return toast.error("File size must be less than 10MB");
+      if (!file.type.startsWith("image/")) return toast.error("Please select an image file");
 
       const imageUrl = URL.createObjectURL(file);
       const img = new Image();
-
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-
-        const MAX_WIDTH = 1920;
-        const MAX_HEIGHT = 1080;
-
+        const canvas = document.createElement("canvas");
+        let width = img.width, height = img.height;
+        const MAX_WIDTH = 1920, MAX_HEIGHT = 1080;
         if (width > MAX_WIDTH || height > MAX_HEIGHT) {
           const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
-          width = width * ratio;
-          height = height * ratio;
+          width *= ratio;
+          height *= ratio;
         }
-
         canvas.width = width;
         canvas.height = height;
-
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext("2d");
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
           setSelectedImage(dataUrl);
           setAnalysisResults(null);
           setError(null);
-          URL.revokeObjectURL(imageUrl);
         }
+        URL.revokeObjectURL(imageUrl);
       };
-
       img.onerror = () => {
         setError("Failed to load the selected image. The file may be corrupted.");
         toast.error("Failed to load the selected image. Please try another file.");
         URL.revokeObjectURL(imageUrl);
       };
-
       img.src = imageUrl;
     }
   };
 
   const handleCameraCapture = () => {
-    if (!isCameraAvailable) {
-      toast.error("No camera detected on your device. Please connect a camera and try again.");
-      return;
-    }
+    if (!isCameraAvailable) return toast.error("No camera detected on your device.");
     setShowCamera(true);
   };
 
@@ -147,7 +122,6 @@ const ImageAnalysis = () => {
     toast.success("Image captured successfully");
   };
 
-  const closeCamera = () => setShowCamera(false);
   const clearImage = () => {
     setSelectedImage(null);
     setAnalysisResults(null);
@@ -168,21 +142,17 @@ const ImageAnalysis = () => {
 
   const analyzeSelectedImage = async () => {
     if (!selectedImage) return;
-
     setIsAnalyzing(true);
     setError(null);
-
     try {
       const results = await analyzeImage(selectedImage);
       setAnalysisResults(results);
-
       const newImage = saveImageToHistory(selectedImage);
       setImageHistory(current => {
         const exists = current.some(img => img.id === newImage.id);
         if (exists) return current;
         return [newImage, ...current.filter(img => img.src !== newImage.src)].slice(0, 10);
       });
-
       toast.success("Image analysis complete");
     } catch (err) {
       console.error("Error analyzing image:", err);
@@ -194,20 +164,13 @@ const ImageAnalysis = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="container mx-auto px-4 py-6 sm:py-8 lg:px-6 xl:px-12 2xl:px-20"
-    >
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-xl sm:text-2xl md:text-4xl font-bold">Medical Image Analysis</h1>
-        <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-          Upload or capture medical images for AI-powered analysis
-        </p>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-4 py-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Medical Image Analysis</h1>
+        <p className="text-muted-foreground">Upload or capture medical images for AI-powered analysis</p>
       </div>
 
-      <Suspense fallback={<div className="h-8 mb-6"></div>}>
+      <Suspense fallback={<Skeleton className="h-12 w-full" />}>
         <ImageHistory
           images={imageHistory}
           onSelectImage={handleSelectFromHistory}
@@ -215,29 +178,27 @@ const ImageAnalysis = () => {
         />
       </Suspense>
 
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-        <Card className="h-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <Card>
           <CardHeader>
             <CardTitle>Image Upload</CardTitle>
             <CardDescription>Select or capture a medical image</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
             {selectedImage ? (
-              <div className="relative w-full overflow-x-auto">
-                <button onClick={clearImage} className="absolute top-2 right-2 bg-background/80 p-1 rounded-full z-10">
+              <div className="relative w-full">
+                <button onClick={clearImage} className="absolute top-2 right-2 bg-background/80 p-1 rounded-full">
                   <X className="h-5 w-5" />
                 </button>
-                <div className="overflow-x-auto max-w-full">
-                  <img
-                    src={selectedImage}
-                    alt="Selected"
-                    className="w-full object-contain rounded-md mx-auto border p-2 max-h-[300px] sm:max-h-[400px] md:max-h-[500px]"
-                    loading="lazy"
-                  />
-                </div>
+                <img
+                  src={selectedImage}
+                  alt="Selected"
+                  className="w-full object-contain rounded-md border p-2 max-h-[500px]"
+                  loading="lazy"
+                />
               </div>
             ) : (
-              <div className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 sm:p-12 text-center cursor-pointer">
+              <div className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                 <p className="text-muted-foreground mb-4">No image selected</p>
                 <div className="flex flex-col gap-4">
                   <label className="cursor-pointer">
@@ -250,75 +211,59 @@ const ImageAnalysis = () => {
                     />
                     <Button
                       variant="outline"
-                      className="w-full py-3 text-sm sm:text-base"
-                      onClick={() => document.getElementById("image-upload")?.click()} // Trigger file input
+                      className="w-full"
+                      onClick={() => document.getElementById("image-upload")?.click()}
                     >
                       <ImagePlus className="mr-2 h-4 w-4" /> Select Image
                     </Button>
                   </label>
-                  {isCameraAvailable === null ? (
-                    <Button variant="outline" className="w-full" disabled>
-                      <div className="h-4 w-4 rounded-full border-2 border-gray-300 animate-spin"></div>
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={handleCameraCapture}
-                      disabled={!isCameraAvailable}
-                    >
-                      <Camera className="mr-2 h-4 w-4" /> Capture Image
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleCameraCapture}
+                    disabled={isCameraAvailable === false}
+                  >
+                    <Camera className="mr-2 h-4 w-4" /> Capture with Camera
+                  </Button>
                 </div>
               </div>
             )}
           </CardContent>
-          <CardFooter className="flex flex-col gap-2">
-            <Button
-              onClick={analyzeSelectedImage}
-              variant="default"
-              disabled={!selectedImage || isAnalyzing}
-            >
-              {isAnalyzing ? "Analyzing..." : "Analyze Image"}
-            </Button>
-          </CardFooter>
+          {selectedImage && (
+            <CardFooter>
+              <Button
+                onClick={analyzeSelectedImage}
+                className="w-full"
+                disabled={isAnalyzing}
+              >
+                {isAnalyzing ? "Analyzing..." : "Analyze Image"}
+              </Button>
+            </CardFooter>
+          )}
         </Card>
 
-        <Suspense fallback={<Skeleton className="w-full h-full max-w-full" />}>
-          {showCamera && <CameraCapture onCapture={handleImageFromCamera} onClose={closeCamera} />}
-        </Suspense>
-
-        {analysisResults && (
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Analysis Results</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <strong>Findings:</strong>
-                  <p>{analysisResults.findings}</p>
-                </div>
-                <div>
-                  <strong>Suggested Codes:</strong>
-                  <ul>
-                    {analysisResults.suggestedCodes.map(code => (
-                      <li key={code}>{code}</li>
-                    ))}
-                  </ul>
-                </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Analysis Results</CardTitle>
+            <CardDescription>AI findings based on the uploaded image</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {error && (
+              <div className="text-red-600 text-sm flex items-center">
+                <AlertCircle className="h-4 w-4 mr-2" /> {error}
               </div>
-            </CardContent>
-          </Card>
-        )}
+            )}
+            <Suspense fallback={<Skeleton className="h-24 w-full" />}>
+              {analysisResults && <AnalysisResults results={analysisResults} />}
+            </Suspense>
+          </CardContent>
+        </Card>
       </div>
 
-      {error && (
-        <div className="mt-4 text-red-500">
-          <AlertCircle className="inline-block mr-2" />
-          {error}
-        </div>
+      {showCamera && (
+        <Suspense fallback={<div className="fixed inset-0 flex items-center justify-center bg-black/50">Loading camera...</div>}>
+          <CameraCapture onCapture={handleImageFromCamera} onClose={() => setShowCamera(false)} />
+        </Suspense>
       )}
     </motion.div>
   );
