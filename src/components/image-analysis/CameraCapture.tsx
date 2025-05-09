@@ -56,45 +56,46 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
 
   const setupCamera = async () => {
     let stream: MediaStream | null = null;
-    
+  
     try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { exact: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-        audio: false
-      });
-
+      // Try rear camera first
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { exact: 'environment' } },
+          audio: false,
+        });
+      } catch {
+        // Fallback to any available camera (e.g. front on laptop)
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+      }
+  
       if (!stream) {
-        setError('Failed to access the camera. Please ensure you have granted the necessary permissions.');
+        setError('Failed to access the camera. Please ensure you have granted permissions.');
         setIsCheckingCamera(false);
         return;
       }
-
+  
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => {
           setIsCameraReady(true);
           setIsCheckingCamera(false);
         };
-      }else{
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-        setIsCameraReady(true);
-        setIsCheckingCamera(false);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error accessing camera:', err);
-      setError(`Could not access the camera ${err.message}`);
+      setError(`Could not access the camera: ${err.message || 'Unknown error'}`);
       setIsCheckingCamera(false);
-      
+  
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
     }
   };
+  
 
   // Clean up camera resources when component unmounts
   useEffect(() => {
