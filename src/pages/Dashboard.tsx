@@ -128,7 +128,7 @@ const Dashboard = () => {
         description="Here's what's happening with your account today."
       />
       {isLoading ? (
-        <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-4 gap- md:gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="bg-background p-6 rounded-lg border shadow-soft">
               <Skeleton className="h-5 w-24 mb-2" />
