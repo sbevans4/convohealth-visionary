@@ -43,12 +43,13 @@ useEffect(() => {
   let backHandler: PluginListenerHandle;
 
   const setupBackHandler = async () => {
-    backHandler = await CapacitorApp.addListener('backButton', () => {
-      const exitRoutes = ['/', '/landing', '/dashboard', '/auth'];
-      if (exitRoutes.includes(location.pathname)) {
-        CapacitorApp.exitApp();
-      } else {
+    backHandler = await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+//       const exitRoutes = ['/', '/landing', '/dashboard', '/auth'];
+//       if (exitRoutes.includes(location.pathname)) {
+    if(canGoBack) {
         window.history.back();
+      } else {
+        CapacitorApp.exitApp();
       }
     });
   };
