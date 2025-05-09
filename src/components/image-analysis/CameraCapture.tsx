@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, X, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface CameraCaptureProps {
   onCapture: (imageSrc: string) => void;
@@ -29,13 +30,17 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
         const devices = await navigator.mediaDevices.enumerateDevices();
         const hasCamera = devices.some(device => device.kind === 'videoinput');
 
+        toast.error(`Camera access ${devices.length > 0 ? 'available' : 'not available'}`);
+
+        toast.success(`Camera access granted. Ready to capture images. ${hasCamera}`);
+
         if (!hasCamera) {
           setError('No camera found.');
           setIsCheckingCamera(false);
           return;
         }
 
-        setReadyToSetupCamera(true); // Wait for videoRef to exist
+        setReadyToSetupCamera(true);
       } catch (err) {
         console.error('Camera check error:', err);
         setError('Camera access failed. Please check permissions.');
@@ -65,6 +70,9 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
         },
         audio: false,
       });
+
+
+      toast.success(`VAlue of stream: ${stream}`);
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
