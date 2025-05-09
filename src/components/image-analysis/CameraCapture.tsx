@@ -78,12 +78,15 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
         return;
       }
   
-      if (videoRef.current) {
+      if (!videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => {
           setIsCameraReady(true);
           setIsCheckingCamera(false);
         };
+      }else{
+        setError('Video element not found. Please try again.');
+        setIsCheckingCamera(false);
       }
     } catch (err: any) {
       console.error('Error accessing camera:', err);
