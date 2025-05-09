@@ -164,7 +164,7 @@ const ImageAnalysis = () => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-4 py-6">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-2 py-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Medical Image Analysis</h1>
         <p className="text-muted-foreground">Upload or capture medical images for AI-powered analysis</p>
@@ -242,7 +242,7 @@ const ImageAnalysis = () => {
           )}
         </Card>
 
-        <Card>
+        <Card className="px-0">
           <CardHeader>
             <CardTitle>Analysis Results</CardTitle>
             <CardDescription>AI findings based on the uploaded image</CardDescription>

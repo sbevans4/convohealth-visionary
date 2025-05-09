@@ -32,6 +32,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
     const checkCameraAvailability = async () => {
       try {
         setIsCheckingCamera(true);
+        await navigator.mediaDevices.getUserMedia({ video: true });
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoDevices = devices.filter(device => device.kind === 'videoinput');
         
@@ -59,7 +60,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: { exact: 'environment' }, // Prefer rear camera on mobile devices
+          facingMode: { exact: 'environment' },
           width: { ideal: 1280 },
           height: { ideal: 720 }
         },
@@ -86,10 +87,9 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
       }
     } catch (err) {
       console.error('Error accessing camera:', err);
-      setError('Could not access the camera. Please ensure you have granted camera permissions.');
+      setError(`Could not access the camera ${err.message}`);
       setIsCheckingCamera(false);
       
-      // Make sure to clean up any partial stream
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
