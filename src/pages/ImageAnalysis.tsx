@@ -223,7 +223,7 @@ const ImageAnalysis = () => {
                     onClick={handleCameraCapture}
                     disabled={isCameraAvailable === false}
                   >
-                    <Camera className="mr-2 h-4 w-4" /> Capture with Camera
+                    <Camera className="mr-2 h-4 w-4" /> Capture Image
                   </Button>
                 </div>
               </div>
@@ -232,7 +232,7 @@ const ImageAnalysis = () => {
           {selectedImage && (
             <CardFooter>
               <Button
-                onClick={analyzeSelectedImage}
+                onClick={analyzeSelectedImage}  
                 className="w-full"
                 disabled={isAnalyzing}
               >

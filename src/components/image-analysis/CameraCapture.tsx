@@ -15,7 +15,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
   const [isCheckingCamera, setIsCheckingCamera] = useState(true);
 
   useEffect(() => {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setError('Your browser does not support camera access.');
@@ -23,11 +22,11 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
       return;
     }
 
-    if (!isLocalhost && window.location.protocol !== 'https:') {
-      setError('Camera access requires HTTPS.');
-      setIsCheckingCamera(false);
-      return;
-    }
+    // if (window.location.protocol !== 'https:') {
+    //   setError('Camera access requires HTTPS.');
+    //   setIsCheckingCamera(false);
+    //   return;
+    // }
 
     const checkCameraAvailability = async () => {
       try {
@@ -66,6 +65,9 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
           setIsCameraReady(true);
           setIsCheckingCamera(false);
         };
+      }else{
+        setError('Unable to access video element.');
+        setIsCheckingCamera(false);
       }
     } catch (err) {
       console.error('Camera setup error:', err);
