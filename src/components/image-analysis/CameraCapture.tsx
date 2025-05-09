@@ -10,27 +10,22 @@ interface CameraCaptureProps {
 const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const [isCameraReady, setIsCameraReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isCheckingCamera, setIsCheckingCamera] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [readyToSetupCamera, setReadyToSetupCamera] = useState(false);
 
+  // Initial check for camera and permissions
   useEffect(() => {
-
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if (!navigator.mediaDevices?.getUserMedia) {
       setError('Your browser does not support camera access.');
       setIsCheckingCamera(false);
       return;
     }
 
-    // if (window.location.protocol !== 'https:') {
-    //   setError('Camera access requires HTTPS.');
-    //   setIsCheckingCamera(false);
-    //   return;
-    // }
-
     const checkCameraAvailability = async () => {
       try {
-        setIsCheckingCamera(true);
         const devices = await navigator.mediaDevices.enumerateDevices();
         const hasCamera = devices.some(device => device.kind === 'videoinput');
 
@@ -40,7 +35,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
           return;
         }
 
-        await setupCamera();
+        setReadyToSetupCamera(true); // Wait for videoRef to exist
       } catch (err) {
         console.error('Camera check error:', err);
         setError('Camera access failed. Please check permissions.');
@@ -51,11 +46,23 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
     checkCameraAvailability();
   }, []);
 
+  // Setup camera when videoRef becomes available
+  useEffect(() => {
+    if (readyToSetupCamera && videoRef.current) {
+      setupCamera();
+    }
+  }, [readyToSetupCamera, videoRef.current]);
+
   const setupCamera = async () => {
     let stream: MediaStream | null = null;
+
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
       });
 
@@ -65,23 +72,25 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
           setIsCameraReady(true);
           setIsCheckingCamera(false);
         };
-      }else{
-        setError('Unable to access video element.');
+      } else {
+        setError('Video element not available.');
         setIsCheckingCamera(false);
       }
     } catch (err) {
       console.error('Camera setup error:', err);
-      setError('Unable to access camera.');
+      setError('Unable to access the camera. Please check permissions.');
       setIsCheckingCamera(false);
-
       if (stream) stream.getTracks().forEach(track => track.stop());
     }
   };
 
+  // Cleanup camera on unmount
   useEffect(() => {
     return () => {
       if (videoRef.current?.srcObject) {
-        (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
+        (videoRef.current.srcObject as MediaStream)
+          .getTracks()
+          .forEach(track => track.stop());
       }
     };
   }, []);
