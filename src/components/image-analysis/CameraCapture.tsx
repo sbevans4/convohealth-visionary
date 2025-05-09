@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, X, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
 
 interface CameraCaptureProps {
   onCapture: (imageSrc: string) => void;
@@ -11,39 +10,42 @@ interface CameraCaptureProps {
 const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
   const [isCameraReady, setIsCameraReady] = useState(false);
-  const [isCheckingCamera, setIsCheckingCamera] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [readyToSetupCamera, setReadyToSetupCamera] = useState(false);
+  const [isCheckingCamera, setIsCheckingCamera] = useState(true);
 
-  // Initial check for camera and permissions
+  // Check if the device has camera support
   useEffect(() => {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setError('Your browser does not support camera access.');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setError('Your browser does not support camera access. Please try a different browser or device.');
+      setIsCheckingCamera(false);
+      return;
+    }
+
+    // Ensure the app is served over HTTPS to access the camera
+    if (window.location.protocol !== 'https:') {
+      setError('Camera access requires HTTPS. Please ensure your app is served over HTTPS.');
       setIsCheckingCamera(false);
       return;
     }
 
     const checkCameraAvailability = async () => {
       try {
+        setIsCheckingCamera(true);
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const hasCamera = devices.some(device => device.kind === 'videoinput');
-
-        toast.error(`Camera access ${devices.length > 0 ? 'available' : 'not available'}`);
-
-        toast.success(`Camera access granted. Ready to capture images. ${hasCamera}`);
-
-        if (!hasCamera) {
-          setError('No camera found.');
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        
+        if (videoDevices.length === 0) {
+          setError('No camera detected on your device. Please connect a camera and try again.');
           setIsCheckingCamera(false);
           return;
         }
-
-        setReadyToSetupCamera(true);
+        
+        // Camera is available, now try to access it
+        setupCamera();
       } catch (err) {
-        console.error('Camera check error:', err);
-        setError('Camera access failed. Please check permissions.');
+        console.error('Error checking camera availability:', err);
+        setError('Failed to check camera availability. Please ensure you have granted the necessary permissions.');
         setIsCheckingCamera(false);
       }
     };
@@ -51,28 +53,24 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
     checkCameraAvailability();
   }, []);
 
-  // Setup camera when videoRef becomes available
-  useEffect(() => {
-    if (readyToSetupCamera && videoRef.current) {
-      setupCamera();
-    }
-  }, [readyToSetupCamera, videoRef.current]);
-
   const setupCamera = async () => {
     let stream: MediaStream | null = null;
-
+    
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'environment',
+          facingMode: { exact: 'environment' }, // Prefer rear camera on mobile devices
           width: { ideal: 1280 },
-          height: { ideal: 720 },
+          height: { ideal: 720 }
         },
-        audio: false,
+        audio: false
       });
 
-
-      toast.success(`VAlue of stream: ${stream}`);
+      if (!stream) {
+        setError('Failed to access the camera. Please ensure you have granted the necessary permissions.');
+        setIsCheckingCamera(false);
+        return;
+      }
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -80,52 +78,62 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
           setIsCameraReady(true);
           setIsCheckingCamera(false);
         };
-      } else {
-        setError('Video element not available.');
+      }else{
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+        setIsCameraReady(true);
         setIsCheckingCamera(false);
       }
     } catch (err) {
-      console.error('Camera setup error:', err);
-      setError('Unable to access the camera. Please check permissions.');
+      console.error('Error accessing camera:', err);
+      setError('Could not access the camera. Please ensure you have granted camera permissions.');
       setIsCheckingCamera(false);
-      if (stream) stream.getTracks().forEach(track => track.stop());
+      
+      // Make sure to clean up any partial stream
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
     }
   };
 
-  // Cleanup camera on unmount
+  // Clean up camera resources when component unmounts
   useEffect(() => {
     return () => {
-      if (videoRef.current?.srcObject) {
-        (videoRef.current.srcObject as MediaStream)
-          .getTracks()
-          .forEach(track => track.stop());
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
       }
     };
   }, []);
 
   const captureImage = () => {
-    if (!isCameraReady || !videoRef.current || !canvasRef.current) return;
+    if (videoRef.current && canvasRef.current && isCameraReady) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
 
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-    onCapture(imageDataUrl);
+      if (context) {
+        // Set canvas dimensions to match video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        // Draw the current video frame to the canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Convert canvas to data URL and pass it back
+        const imageSrc = canvas.toDataURL('image/jpeg', 0.9);
+        onCapture(imageSrc);
+      }
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex flex-col items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-4">
       <div className="relative w-full max-w-md">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-2 right-2 z-10 bg-black/50 text-white hover:bg-black/70 rounded-full"
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="absolute top-2 right-2 z-10 bg-black/50 text-white hover:bg-black/70 rounded-full" 
           onClick={onClose}
         >
           <X className="h-5 w-5" />
@@ -147,14 +155,16 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
 
         {!error && !isCheckingCamera && (
           <>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
+            <video 
+              ref={videoRef} 
+              autoPlay 
+              playsInline 
+              muted 
               className="w-full rounded-lg shadow-lg"
             />
+            
             <canvas ref={canvasRef} className="hidden" />
+            
             <div className="mt-4 flex justify-center">
               <Button
                 disabled={!isCameraReady}
