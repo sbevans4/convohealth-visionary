@@ -13,23 +13,24 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCheckingCamera, setIsCheckingCamera] = useState(true);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Check if the device has camera support
   useEffect(() => {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setError('Your browser does not support camera access. Please try a different browser or device.');
-      setIsCheckingCamera(false);
-      return;
-    }
+    const checkCamera = async () => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setError('Your browser does not support camera access. Please try a different browser or device.');
+        setIsCheckingCamera(false);
+        return;
+      }
 
-    // Ensure the app is served over HTTPS to access the camera
-    if (window.location.protocol !== 'https:') {
-      setError('Camera access requires HTTPS. Please ensure your app is served over HTTPS.');
-      setIsCheckingCamera(false);
-      return;
-    }
+      // Ensure the app is served over HTTPS to access the camera
+      if (window.location.protocol !== 'https:' && !window.location.hostname.includes('localhost')) {
+        setError('Camera access requires HTTPS. Please ensure your app is served over HTTPS.');
+        setIsCheckingCamera(false);
+        return;
+      }
 
-    const checkCameraAvailability = async () => {
       try {
         setIsCheckingCamera(true);
         await navigator.mediaDevices.getUserMedia({ video: true });
@@ -43,7 +44,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
         }
         
         // Camera is available, now try to access it
-        setupCamera();
+        await setupCamera();
       } catch (err) {
         console.error('Error checking camera availability:', err);
         setError('Failed to check camera availability. Please ensure you have granted the necessary permissions.');
@@ -51,13 +52,19 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
       }
     };
 
-    checkCameraAvailability();
+    checkCamera();
+
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
   }, []);
 
   const setupCamera = async () => {
-    let stream: MediaStream | null = null;
-  
     try {
+      let stream: MediaStream;
+      
       // Try rear camera first
       try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -71,64 +78,66 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
           audio: false,
         });
       }
-  
-      if (!stream) {
-        setError('Failed to access the camera. Please ensure you have granted permissions.');
-        setIsCheckingCamera(false);
-        return;
-      }
-  
+
+      streamRef.current = stream;
+
+      // Wait for the video element to be available
       if (!videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          setIsCameraReady(true);
-          setIsCheckingCamera(false);
-        };
-      }else{
-        setError('Video element not found. Please try again.');
-        setIsCheckingCamera(false);
+        throw new Error('Video element not found');
       }
+
+      videoRef.current.srcObject = stream;
+
+      // Wait for the video to be ready
+      await new Promise<void>((resolve, reject) => {
+        if (!videoRef.current) return reject('Video element not found');
+        
+        videoRef.current.onloadedmetadata = () => resolve();
+        videoRef.current.onerror = () => reject('Video loading error');
+        
+        // Fallback in case onloadedmetadata doesn't fire
+        setTimeout(() => {
+          if (videoRef.current?.readyState >= HTMLMediaElement.HAVE_METADATA) {
+            resolve();
+          } else {
+            reject('Video loading timeout');
+          }
+        }, 5000);
+      });
+
+      setIsCameraReady(true);
+      setIsCheckingCamera(false);
     } catch (err: any) {
       console.error('Error accessing camera:', err);
       setError(`Could not access the camera: ${err.message || 'Unknown error'}`);
       setIsCheckingCamera(false);
-  
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
       }
     }
   };
-  
-
-  // Clean up camera resources when component unmounts
-  useEffect(() => {
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
 
   const captureImage = () => {
-    if (videoRef.current && canvasRef.current && isCameraReady) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
+    if (!videoRef.current || !canvasRef.current || !isCameraReady) return;
 
-      if (context) {
-        // Set canvas dimensions to match video
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        
-        // Draw the current video frame to the canvas
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // Convert canvas to data URL and pass it back
-        const imageSrc = canvas.toDataURL('image/jpeg', 0.9);
-        onCapture(imageSrc);
-      }
-    }
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+
+    if (!context) return;
+
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    // Draw the current video frame to the canvas
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Convert canvas to data URL and pass it back
+    const imageSrc = canvas.toDataURL('image/jpeg', 0.9);
+    onCapture(imageSrc);
   };
 
   return (
